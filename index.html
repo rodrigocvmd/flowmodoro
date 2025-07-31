@@ -88,7 +88,6 @@
                 <button id="end-focus-btn"
                     class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg">Finalizar
                     Foco</button>
-                <!-- Summary on rest pending -->
                 <div id="rest-pending-summary"
                     class="hidden sm:col-span-2 text-center space-y-2 text-gray-300 bg-gray-900/50 p-4 rounded-lg">
                 </div>
@@ -103,35 +102,74 @@
                     Descanso</button>
             </div>
 
-            <!-- Controles Iniciais e Gerenciador de Tarefas -->
+            <!-- Controles Iniciais -->
             <div id="idle-controls" class="space-y-6">
+                <!-- Seletor de Modo -->
+                <div class="flex items-center justify-center space-x-3 text-sm font-medium text-gray-300">
+                    <span>Tarefas</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="mode-toggle" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-cyan-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600">
+                        </div>
+                    </label>
+                    <span>Dia</span>
+                </div>
+
                 <div class="space-y-2">
                     <label for="min-focus-input" class="block text-sm font-medium text-gray-300">Tempo de foco mínimo
-                        (opcional, em minutos):</label>
-                    <input type="number" id="min-focus-input" min="1" placeholder="Ex: 25"
-                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                        (opcional):</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="min-focus-hr" min="0" placeholder="Hr"
+                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                        <input type="number" id="min-focus-min" min="0" max="59" placeholder="Min"
+                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                    </div>
                 </div>
                 <button id="start-focus-btn"
                     class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar
                     Foco</button>
 
-                <div class="space-y-4">
+                <!-- Container Modo Tarefas -->
+                <div id="tasks-mode-container" class="space-y-4">
                     <h2 class="text-lg font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
                         <input type="text" id="task-name-input" placeholder="Nome da nova tarefa"
                             class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                             required>
+                        <label class="block text-sm font-medium text-gray-300 -mb-2">Meta de tempo:</label>
                         <div class="grid grid-cols-3 gap-3">
-                            <input type="number" id="task-time-input" placeholder="Meta (min)"
-                                class="col-span-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                                required min="1">
+                            <input type="number" id="task-hr-input" placeholder="Hr"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                min="0">
+                            <input type="number" id="task-min-input" placeholder="Min"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                required min="1" max="59">
                             <button type="submit"
-                                class="btn col-span-2 bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar
-                                Tarefa</button>
+                                class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
                         </div>
                     </form>
                 </div>
+
+                <!-- Container Modo Dia -->
+                <div id="day-mode-container" class="hidden space-y-4">
+                    <div id="day-goal-display" class="bg-gray-700 p-3 rounded-lg"></div>
+                    <form id="set-day-goal-form" class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-300">Definir meta para o dia:</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <input type="number" id="day-goal-hr" placeholder="Hr"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                min="0">
+                            <input type="number" id="day-goal-min" placeholder="Min"
+                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                required min="1" max="59">
+                            <button type="submit"
+                                class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Definir</button>
+                        </div>
+                    </form>
+                </div>
+
                 <button id="reset-day-btn"
                     class="btn w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg text-sm">Resetar
                     Dia</button>
@@ -188,26 +226,35 @@
         const startRestBtn = document.getElementById('start-rest-btn');
         const skipRestBtn = document.getElementById('skip-rest-btn');
         const endRestBtn = document.getElementById('end-rest-btn');
-        const minFocusInput = document.getElementById('min-focus-input');
+        const minFocusHrInput = document.getElementById('min-focus-hr');
+        const minFocusMinInput = document.getElementById('min-focus-min');
         const startFocusBtn = document.getElementById('start-focus-btn');
         const taskList = document.getElementById('task-list');
         const addTaskForm = document.getElementById('add-task-form');
         const taskNameInput = document.getElementById('task-name-input');
-        const taskTimeInput = document.getElementById('task-time-input');
+        const taskHrInput = document.getElementById('task-hr-input');
+        const taskMinInput = document.getElementById('task-min-input');
         const resetDayBtn = document.getElementById('reset-day-btn');
         const confirmationModal = document.getElementById('confirmation-modal');
         const cancelResetBtn = document.getElementById('cancel-reset-btn');
         const confirmResetBtn = document.getElementById('confirm-reset-btn');
+        const modeToggle = document.getElementById('mode-toggle');
+        const tasksModeContainer = document.getElementById('tasks-mode-container');
+        const dayModeContainer = document.getElementById('day-mode-container');
+        const setDayGoalForm = document.getElementById('set-day-goal-form');
+        const dayGoalHrInput = document.getElementById('day-goal-hr');
+        const dayGoalMinInput = document.getElementById('day-goal-min');
+        const dayGoalDisplay = document.getElementById('day-goal-display');
 
         // --- Variáveis de Estado ---
         let state = 'idle';
+        let appMode = 'tasks'; // 'tasks' or 'day'
         let seconds = 0, focusSeconds = 0, minFocusSeconds = 0;
         let isCountdown = false;
         let tasks = [];
         let currentTaskId = null;
         let selectedTaskId = null;
         let sessionFocusTime = 0;
-        let sessionRestTime = 0;
 
         // --- Lógica de Áudio ---
         let synth;
@@ -217,7 +264,7 @@
 
         // --- Funções de Persistência (LocalStorage) ---
         function saveState() {
-            const appState = { state, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, sessionRestTime, lastSaveTimestamp: Date.now() };
+            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, lastSaveTimestamp: Date.now() };
             localStorage.setItem('flowmodoroState', JSON.stringify(appState));
         }
 
@@ -230,6 +277,8 @@
 
             const saved = JSON.parse(savedStateJSON);
             tasks = saved.tasks || [];
+            appMode = saved.appMode || 'tasks';
+            modeToggle.checked = appMode === 'day';
 
             if (saved.state === 'idle') {
                 resetToIdle();
@@ -245,14 +294,12 @@
             isCountdown = saved.isCountdown;
             currentTaskId = saved.currentTaskId;
             sessionFocusTime = saved.sessionFocusTime || 0;
-            sessionRestTime = saved.sessionRestTime || 0;
 
             if (state === 'focusing') {
                 focusSeconds += timeSinceLastSave;
                 if (isCountdown) seconds -= timeSinceLastSave; else seconds += timeSinceLastSave;
             } else if (state === 'resting') {
                 seconds -= timeSinceLastSave;
-                sessionRestTime += timeSinceLastSave;
             }
 
             if (seconds <= 0 && (state === 'resting' || (state === 'focusing' && isCountdown))) {
@@ -284,11 +331,12 @@
         // --- Gerenciamento de Tarefas ---
         function renderTasks() {
             taskList.innerHTML = '';
-            if (tasks.length === 0) {
+            if (tasks.filter(t => t.id !== 'day_goal').length === 0) {
                 taskList.innerHTML = `<p class="text-gray-500 text-center italic">Nenhuma tarefa para hoje.</p>`;
                 return;
             }
             tasks.forEach(task => {
+                if (task.id === 'day_goal') return;
                 const isCompleted = task.proposedTime > 0 && task.dedicatedTime >= task.proposedTime * 60;
                 const dedicated = formatTime(task.dedicatedTime);
                 const proposed = formatTime(task.proposedTime * 60);
@@ -301,9 +349,9 @@
                     baseClasses += ' bg-gray-700 opacity-60';
                 } else {
                     if (isSelected) {
-                        baseClasses += ' bg-gray-600'; // Destaque fixo para seleção
+                        baseClasses += ' bg-gray-600';
                     } else {
-                        baseClasses += ' bg-gray-700 hover:bg-gray-600'; // Efeito hover para não selecionado
+                        baseClasses += ' bg-gray-700 hover:bg-gray-600';
                     }
                 }
 
@@ -334,6 +382,36 @@
             });
         }
 
+        function renderDayGoal() {
+            let dayTask = tasks.find(t => t.id === 'day_goal');
+            if (!dayTask) {
+                dayTask = { id: 'day_goal', name: "Rendimento no dia", proposedTime: 0, dedicatedTime: 0 };
+                tasks.push(dayTask);
+            }
+            const isCompleted = dayTask.proposedTime > 0 && dayTask.dedicatedTime >= dayTask.proposedTime * 60;
+            const dedicated = formatTime(dayTask.dedicatedTime);
+            const proposed = formatTime(dayTask.proposedTime * 60);
+
+            dayGoalDisplay.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        ${isCompleted ? `
+                            <div title="Meta do Dia Atingida" class="text-emerald-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                </svg>
+                            </div>
+                        ` : ''}
+                        <div>
+                            <p class="font-semibold text-white ${isCompleted ? 'line-through' : ''}">Rendimento no dia</p>
+                            <p class="text-xs text-gray-400">Progresso: ${dedicated} / ${proposed}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+
         function selectTask(taskId) {
             selectedTaskId = selectedTaskId === taskId ? null : taskId;
             const task = tasks.find(t => t.id === selectedTaskId);
@@ -344,12 +422,29 @@
         function addTask(e) {
             e.preventDefault();
             const name = taskNameInput.value.trim();
-            const time = parseInt(taskTimeInput.value, 10);
+            const hr = parseInt(taskHrInput.value, 10) || 0;
+            const min = parseInt(taskMinInput.value, 10) || 0;
+            const time = (hr * 60) + min;
             if (!name || !time || time <= 0) return;
             tasks.push({ id: Date.now().toString(), name, proposedTime: time, dedicatedTime: 0 });
             taskNameInput.value = '';
-            taskTimeInput.value = '';
+            taskHrInput.value = '';
+            taskMinInput.value = '';
             renderTasks();
+            saveState();
+        }
+
+        function setDayGoal(e) {
+            e.preventDefault();
+            let dayTask = tasks.find(t => t.id === 'day_goal');
+            if (!dayTask) {
+                dayTask = { id: 'day_goal', name: "Rendimento no dia", proposedTime: 0, dedicatedTime: 0 };
+                tasks.push(dayTask);
+            }
+            const hr = parseInt(dayGoalHrInput.value, 10) || 0;
+            const min = parseInt(dayGoalMinInput.value, 10) || 0;
+            dayTask.proposedTime = (hr * 60) + min;
+            renderDayGoal();
             saveState();
         }
 
@@ -384,14 +479,22 @@
                 statusText.textContent = 'Pronto para iniciar uma sessão de foco?';
                 sessionControls.classList.add('hidden');
                 idleControls.classList.remove('hidden');
-                renderTasks();
+                if (appMode === 'tasks') {
+                    tasksModeContainer.style.display = 'block';
+                    dayModeContainer.style.display = 'none';
+                    renderTasks();
+                } else {
+                    tasksModeContainer.style.display = 'none';
+                    dayModeContainer.style.display = 'block';
+                    renderDayGoal();
+                }
             } else {
                 idleControls.classList.add('hidden');
                 sessionControls.classList.remove('hidden');
 
                 if (state === 'focusing' || state === 'paused') {
                     statusText.textContent = state === 'paused' ? 'Foco pausado.' : (isCountdown ? 'Foco mínimo em andamento...' : 'Tempo extra de foco...');
-                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Sessão Geral' };
+                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Geral' };
                     sessionTaskIndicator.textContent = `Focando em: ${task.name}`;
                     pauseResumeBtn.style.display = 'block';
                     endFocusBtn.style.display = 'block';
@@ -399,7 +502,7 @@
                     pauseResumeBtn.textContent = state === 'paused' ? 'Retomar' : 'Pausar';
                     if (isCountdown) statusIndicator.classList.add('bg-red-500'); else statusIndicator.classList.add('bg-green-500');
                 } else if (state === 'rest_pending') {
-                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Sessão Geral' };
+                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Geral' };
                     statusText.textContent = 'Foco finalizado!';
                     sessionTaskIndicator.textContent = `Descanso para: ${task.name}`;
                     timerDisplay.classList.add('text-teal-400');
@@ -415,7 +518,7 @@
                         <p class="text-base">Total na tarefa hoje: <span class="font-bold text-white">${formatTime(newTotal)}</span></p>
                     `;
                 } else if (state === 'resting') {
-                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Sessão Geral' };
+                    const task = tasks.find(t => t.id == currentTaskId) || { name: 'Geral' };
                     statusText.textContent = 'Tempo de descanso. Relaxe e recarregue.';
                     sessionTaskIndicator.textContent = `Descansando de: ${task.name}`;
                     endRestBtn.style.display = 'block';
@@ -435,7 +538,6 @@
             currentTaskId = null;
             selectedTaskId = null;
             sessionFocusTime = 0;
-            sessionRestTime = 0;
             timerDisplay.textContent = formatTime(0);
             timerDisplay.classList.remove('text-teal-400');
             sessionTaskIndicator.textContent = '';
@@ -443,7 +545,9 @@
         }
 
         function endSessionAndReset(playAlarm = true) {
-            const totalSessionTime = sessionFocusTime + sessionRestTime;
+            const permittedRest = calculateRestTime(sessionFocusTime);
+            const totalSessionTime = sessionFocusTime + permittedRest;
+
             if (currentTaskId && totalSessionTime > 0) {
                 updateTaskTime(currentTaskId, totalSessionTime);
             }
@@ -468,7 +572,6 @@
                 restPreview.textContent = formatTimeShort(isCountdown ? 0 : calculateRestTime(focusSeconds));
             } else if (state === 'resting') {
                 seconds--;
-                sessionRestTime++;
                 timerDisplay.textContent = formatTime(seconds);
                 if (seconds <= 0) {
                     setTimeout(() => endSessionAndReset(true), 1000);
@@ -483,20 +586,30 @@
         function startFocus() {
             initializeAudio();
 
-            currentTaskId = selectedTaskId;
-            if (!currentTaskId) {
-                let generalTask = tasks.find(t => t.id === 'general');
-                if (!generalTask) {
-                    generalTask = { id: 'general', name: "Sessões gerais", proposedTime: 0, dedicatedTime: 0 };
-                    tasks.push(generalTask);
+            if (appMode === 'day') {
+                let dayTask = tasks.find(t => t.id === 'day_goal');
+                if (!dayTask) {
+                    dayTask = { id: 'day_goal', name: "Rendimento no dia", proposedTime: 0, dedicatedTime: 0 };
+                    tasks.push(dayTask);
                 }
-                currentTaskId = 'general';
+                currentTaskId = 'day_goal';
+            } else {
+                currentTaskId = selectedTaskId;
+                if (!currentTaskId) {
+                    let generalTask = tasks.find(t => t.id === 'general');
+                    if (!generalTask) {
+                        generalTask = { id: 'general', name: "Geral", proposedTime: 0, dedicatedTime: 0 };
+                        tasks.push(generalTask);
+                    }
+                    currentTaskId = 'general';
+                }
             }
             selectedTaskId = null;
 
             sessionFocusTime = 0;
-            sessionRestTime = 0;
-            const minFocusValue = parseInt(minFocusInput.value, 10);
+            const hr = parseInt(minFocusHrInput.value, 10) || 0;
+            const min = parseInt(minFocusMinInput.value, 10) || 0;
+            const minFocusValue = (hr * 60) + min;
 
             if (minFocusValue > 0) {
                 minFocusSeconds = minFocusValue * 60;
@@ -543,6 +656,7 @@
         endRestBtn.addEventListener('click', () => endSessionAndReset(false));
         startFocusBtn.addEventListener('click', startFocus);
         addTaskForm.addEventListener('submit', addTask);
+        setDayGoalForm.addEventListener('submit', setDayGoal);
 
         taskList.addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.delete-task-btn');
@@ -555,6 +669,14 @@
             if (taskItem) {
                 selectTask(taskItem.dataset.taskId);
             }
+        });
+
+        modeToggle.addEventListener('change', (e) => {
+            appMode = e.target.checked ? 'day' : 'tasks';
+            selectedTaskId = null; // Desseleciona ao trocar de modo
+            sessionTaskIndicator.textContent = '';
+            updateUI();
+            saveState();
         });
 
         resetDayBtn.addEventListener('click', () => {
