@@ -85,7 +85,7 @@
         <div id="main-controls" class="space-y-4">
             <!-- Controles em Sessão -->
             <div id="session-controls" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
+
                 <button id="end-focus-btn"
                     class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-lg sm:col-span-2">Finalizar
                     Foco</button>
@@ -118,7 +118,8 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="min-focus-hr" class="block text-sm font-medium text-gray-300">Tempo de foco mínimo
+                    <label for="min-focus-hr" class="block text-sm text-center font-medium text-gray-300">Tempo de foco
+                        mínimo
                         (opcional):</label>
                     <div class="flex gap-2">
                         <input type="number" id="min-focus-hr" min="0" placeholder="Hr"
@@ -133,7 +134,7 @@
 
                 <!-- Container Modo Tarefas -->
                 <div id="tasks-mode-container" class="space-y-4">
-                    <h2 class="text-lg font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
+                    <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
                         <input type="text" id="task-name-input" placeholder="Nome da nova tarefa"
@@ -195,13 +196,18 @@
     </div>
 
     <!-- Modal de Fim Antecipado -->
-    <div id="early-end-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+    <div id="early-end-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
         <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center">
             <h3 class="text-lg font-bold text-white mb-2">Atenção</h3>
             <p class="text-gray-300 mb-6">Finalizar o foco antes do foco mínimo não permite acumular descanso.</p>
             <div class="flex justify-center gap-4">
-                <button id="continue-focus-btn" class="btn bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">Seguir foco</button>
-                <button id="confirm-end-focus-btn" class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg">Finalizar foco</button>
+                <button id="continue-focus-btn"
+                    class="btn bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">Seguir
+                    foco</button>
+                <button id="confirm-end-focus-btn"
+                    class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg">Finalizar
+                    foco</button>
             </div>
         </div>
     </div>
@@ -374,7 +380,7 @@
                 const taskEl = document.createElement('div');
 
                 const isSelected = task.id === selectedTaskId;
-                let baseClasses = 'task-item p-3 rounded-lg flex items-center justify-between gap-2 cursor-pointer transition-colors';
+                let baseClasses = 'task-item p-3 rounded-lg relative flex items-center justify-center gap-2 cursor-pointer transition-colors';
 
                 if (isCompleted) {
                     baseClasses += ' bg-gray-700 opacity-60';
@@ -390,7 +396,7 @@
                 taskEl.dataset.taskId = task.id;
 
                 taskEl.innerHTML = `
-                    <div class="flex items-center gap-3 pointer-events-none">
+                    <div class="flex items-center gap-3 pointer-events-none text-center">
                          <div class="w-5 h-5 flex-shrink-0 flex items-center justify-center">
                             ${isCompleted ? `
                                 <div title="Tarefa Concluída" class="text-emerald-400">
@@ -405,7 +411,7 @@
                             <p class="text-xs text-gray-400">Progresso: ${dedicated} / ${proposed}</p>
                         </div>
                     </div>
-                    <button data-task-id="${task.id}" title="Deletar Tarefa" class="delete-task-btn btn bg-rose-800 hover:bg-rose-700 p-2 rounded-md z-10">
+                    <button data-task-id="${task.id}" title="Deletar Tarefa" class="delete-task-btn btn bg-rose-800 hover:bg-rose-700 p-2 rounded-md z-10 absolute right-3">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
                     </button>
                 `;
@@ -428,11 +434,11 @@
             const proposed = formatTime(dayTask.proposedTime * 60);
 
             dayGoalDisplay.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
+                <div class="relative flex items-center justify-center w-full">
+                    <div class="flex items-center gap-3 text-center">
                         ${isCompleted ? `
                             <div title="Meta do Dia Atingida" class="text-emerald-400">
-                                <svg xmlns="http://www.w.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                                 </svg>
                             </div>
@@ -443,7 +449,7 @@
                         </div>
                     </div>
                     ${hasGoal ? `
-                    <button id="edit-day-goal-btn" title="Editar Meta" class="btn bg-gray-700 hover:bg-gray-600 p-2 rounded-md">
+                    <button id="edit-day-goal-btn" title="Editar Meta" class="btn bg-gray-700 hover:bg-gray-600 p-2 rounded-md absolute right-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="pointer-events-none">
                             <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                             <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
