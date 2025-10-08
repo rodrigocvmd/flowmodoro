@@ -123,9 +123,9 @@
                         (opcional):</label>
                     <div class="flex gap-2">
                         <input type="number" id="min-focus-hr" min="0" placeholder="Hr"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                         <input type="number" id="min-focus-min" min="0" max="59" placeholder="Min"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                            class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
                 </div>
                 <button id="start-focus-btn"
@@ -138,15 +138,15 @@
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
                         <input type="text" id="task-name-input" placeholder="Nome da nova tarefa"
-                            class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                            class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                             required>
                         <label class="block text-sm font-medium text-gray-300 -mb-2">Meta de tempo:</label>
                         <div class="grid grid-cols-3 gap-3">
                             <input type="number" id="task-hr-input" placeholder="Hr"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                 min="0">
                             <input type="number" id="task-min-input" placeholder="Min"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                 min="0" max="59">
                             <button type="submit"
                                 class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
@@ -161,10 +161,10 @@
                         <label class="block text-sm font-medium text-gray-300">Definir meta para o dia:</label>
                         <div class="grid grid-cols-3 gap-3">
                             <input type="number" id="day-goal-hr" placeholder="Hr"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                 min="0">
                             <input type="number" id="day-goal-min" placeholder="Min"
-                                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                                class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
                                 min="0" max="59">
                             <button type="submit"
                                 class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Definir</button>
@@ -382,7 +382,7 @@
                 const taskEl = document.createElement('div');
 
                 const isSelected = task.id === selectedTaskId;
-                let baseClasses = 'task-item p-3 rounded-lg relative flex items-center justify-center gap-2 cursor-pointer transition-colors';
+                let baseClasses = 'task-item p-3 rounded-lg relative flex items-center justify-around gap-2 cursor-pointer transition-colors';
 
                 if (isCompleted) {
                     baseClasses += ' bg-gray-700 opacity-60';
@@ -399,7 +399,7 @@
 
                 taskEl.innerHTML = `
                     <div class="flex items-center gap-3 pointer-events-none text-center">
-                         <div class="w-5 h-5 flex-shrink-0 flex items-center justify-center">
+                         <div class="w-5 h-5 flex-shrink-0 flex items-center">
                             ${isCompleted ? `
                                 <div title="Tarefa Concluída" class="text-emerald-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
@@ -409,11 +409,11 @@
                             ` : ''}
                          </div>
                          <div>
-                            <p class="font-semibold text-white ${isCompleted ? 'line-through' : ''}">${task.name}</p>
-                            <p class="text-xs text-gray-400">Progresso: ${dedicated} / ${proposed}</p>
+                            <p class="text-sm font-bold text-white ${isCompleted ? 'line-through' : ''}">${task.name}</p>
+                            <p class="text-sm text-gray-200">Progresso: ${dedicated} / ${proposed}</p>
                         </div>
                     </div>
-                    <div class="absolute right-3 flex gap-2">
+                    <div class="right-3 flex gap-2">
                         <button data-task-id="${task.id}" title="Editar Tarefa" class="edit-task-btn btn bg-gray-600 hover:bg-gray-500 p-2 rounded-md z-10">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
