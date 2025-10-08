@@ -282,6 +282,7 @@
         let currentTaskId = null;
         let selectedTaskId = null;
         let sessionFocusTime = 0;
+        let editingTaskId = null;
 
         // --- Lógica de Áudio ---
         let synth;
@@ -291,7 +292,7 @@
 
         // --- Funções de Persistência (LocalStorage) ---
         function saveState() {
-            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, lastSaveTimestamp: Date.now() };
+            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, editingTaskId, lastSaveTimestamp: Date.now() };
             localStorage.setItem('flowmodoroState', JSON.stringify(appState));
         }
 
@@ -321,6 +322,7 @@
             isCountdown = saved.isCountdown;
             currentTaskId = saved.currentTaskId;
             sessionFocusTime = saved.sessionFocusTime || 0;
+            editingTaskId = saved.editingTaskId || null;
 
             if (state === 'focusing') {
                 focusSeconds += timeSinceLastSave;
@@ -334,7 +336,7 @@
                 return;
             }
 
-            const displaySeconds = isCountdown ? seconds : (state === 'focusing' || state === 'paused' ? focusSeconds : seconds);
+            const displaySeconds = isCountdown ? seconds : (state === 'focusing' ? focusSeconds : seconds);
             timerDisplay.textContent = formatTime(displaySeconds);
 
             updateUI();
@@ -411,9 +413,16 @@
                             <p class="text-xs text-gray-400">Progresso: ${dedicated} / ${proposed}</p>
                         </div>
                     </div>
-                    <button data-task-id="${task.id}" title="Deletar Tarefa" class="delete-task-btn btn bg-rose-800 hover:bg-rose-700 p-2 rounded-md z-10 absolute right-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
-                    </button>
+                    <div class="absolute right-3 flex gap-2">
+                        <button data-task-id="${task.id}" title="Editar Tarefa" class="edit-task-btn btn bg-gray-600 hover:bg-gray-500 p-2 rounded-md z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                        <button data-task-id="${task.id}" title="Deletar Tarefa" class="delete-task-btn btn bg-rose-800 hover:bg-rose-700 p-2 rounded-md z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                        </button>
+                    </div>
                 `;
                 taskList.appendChild(taskEl);
             });
@@ -444,15 +453,13 @@
                             </div>
                         ` : ''}
                         <div>
-                            <p class="font-semibold text-white ${isCompleted ? 'line-through' : ''}">Rendimento no dia</p>
-                            <p class="text-xs text-gray-400">Progresso: ${dedicated} / ${proposed}</p>
+                            <p class="font-semibold text-white">Progresso: ${dedicated} / ${proposed}</p>
                         </div>
                     </div>
                     ${hasGoal ? `
                     <button id="edit-day-goal-btn" title="Editar Meta" class="btn bg-gray-700 hover:bg-gray-600 p-2 rounded-md absolute right-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="pointer-events-none">
-                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
                         </svg>
                     </button>
                     ` : ''}
@@ -474,33 +481,22 @@
             renderTasks();
         }
 
-        function addTask(e) {
-            e.preventDefault();
-            const name = taskNameInput.value.trim();
-            const hr = parseInt(taskHrInput.value, 10) || 0;
-            const min = parseInt(taskMinInput.value, 10) || 0;
-            const time = (hr * 60) + min;
-            if (!name || time <= 0) return;
-            tasks.push({ id: Date.now().toString(), name, proposedTime: time, dedicatedTime: 0 });
-            taskNameInput.value = '';
-            taskHrInput.value = '';
-            taskMinInput.value = '';
-            renderTasks();
-            saveState();
-        }
+        function startEditTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
 
-        function setDayGoal(e) {
-            e.preventDefault();
-            let dayTask = tasks.find(t => t.id === 'day_goal');
-            if (!dayTask) {
-                dayTask = { id: 'day_goal', name: "Rendimento no dia", proposedTime: 0, dedicatedTime: 0 };
-                tasks.push(dayTask);
-            }
-            const hr = parseInt(dayGoalHrInput.value, 10) || 0;
-            const min = parseInt(dayGoalMinInput.value, 10) || 0;
-            dayTask.proposedTime = (hr * 60) + min;
-            renderDayGoal();
-            saveState();
+            editingTaskId = id;
+
+            taskNameInput.value = task.name;
+            taskHrInput.value = Math.floor(task.proposedTime / 60);
+            taskMinInput.value = task.proposedTime % 60;
+
+            const submitBtn = addTaskForm.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Salvar';
+            submitBtn.classList.remove('bg-cyan-800', 'hover:bg-cyan-700');
+            submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
+
+            addTaskForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
 
         function deleteTask(id) {
@@ -521,7 +517,7 @@
         }
 
         function updateGoalIndicator() {
-            if (state !== 'focusing' && state !== 'paused') {
+            if (state !== 'focusing') {
                 goalRemainingIndicator.textContent = '';
                 return;
             }
@@ -559,7 +555,7 @@
                 statusText.textContent = 'Pronto para iniciar uma sessão de foco?';
                 sessionControls.classList.add('hidden');
                 idleControls.classList.remove('hidden');
-                goalRemainingIndicator.textContent = '';
+                goalRemainingIndicator.style.display = 'none';
                 sessionTaskIndicator.style.display = selectedTaskId ? 'block' : 'none';
                 if (appMode === 'tasks') {
                     tasksModeContainer.style.display = 'block';
@@ -622,6 +618,7 @@
             currentTaskId = null;
             selectedTaskId = null;
             sessionFocusTime = 0;
+            editingTaskId = null;
             timerDisplay.textContent = formatTime(0);
             timerDisplay.classList.remove('text-teal-400');
             updateUI();
@@ -777,11 +774,28 @@
             const hr = parseInt(taskHrInput.value, 10) || 0;
             const min = parseInt(taskMinInput.value, 10) || 0;
             const time = (hr * 60) + min;
-            if (!name || (hr === 0 && min === 0)) return;
-            tasks.push({ id: Date.now().toString(), name, proposedTime: time, dedicatedTime: 0 });
+            if (!name || time <= 0) return;
+
+            if (editingTaskId) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                if (task) {
+                    task.name = name;
+                    task.proposedTime = time;
+                }
+            } else {
+                tasks.push({ id: Date.now().toString(), name, proposedTime: time, dedicatedTime: 0 });
+            }
+
             taskNameInput.value = '';
             taskHrInput.value = '';
             taskMinInput.value = '';
+            editingTaskId = null;
+
+            const submitBtn = addTaskForm.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Adicionar';
+            submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
+            submitBtn.classList.add('bg-cyan-800', 'hover:bg-cyan-700');
+
             renderTasks();
             saveState();
         });
@@ -810,6 +824,14 @@
                 deleteTask(deleteBtn.dataset.taskId);
                 return;
             }
+
+            const editBtn = e.target.closest('.edit-task-btn');
+            if (editBtn) {
+                e.stopPropagation();
+                startEditTask(editBtn.dataset.taskId);
+                return;
+            }
+
             const taskItem = e.target.closest('.task-item');
             if (taskItem) {
                 selectTask(taskItem.dataset.taskId);
