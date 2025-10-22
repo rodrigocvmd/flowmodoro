@@ -127,11 +127,12 @@
                         mínimo
                         (opcional):</label>
                     <div class="flex gap-2">
-                        <input type="number" id="min-focus-hr" min="0" placeholder="Hr"
+                        <input type="number" id="min-focus-hr" min="0" max="1" placeholder="Hr"
                             class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                         <input type="number" id="min-focus-min" min="0" max="59" placeholder="Min"
                             class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
                     </div>
+                    <div id="focus-projection-display" class="text-center text-sm text-gray-400 mt-2 space-y-1"></div>
                 </div>
                 <button id="start-focus-btn"
                     class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar
@@ -272,6 +273,7 @@
         const earlyEndModal = document.getElementById('early-end-modal');
         const continueFocusBtn = document.getElementById('continue-focus-btn');
         const confirmEndFocusBtn = document.getElementById('confirm-end-focus-btn');
+        const focusProjectionDisplay = document.getElementById('focus-projection-display');
 
         // --- Melhoria de UX: Selecionar texto ao focar ---
         document.querySelectorAll('input[type=text], input[type=number]').forEach(input => {
@@ -354,12 +356,18 @@
         const calculateRestTime = (s) => {
             if (s <= 0) return 0;
             const focusMinutes = s / 60;
-            // Progressão desejada: 20m->25%, 60m->30%, 100m->35%, 140m->40%, 180m->45%
-            // A porcentagem de descanso aumenta linearmente com o tempo de foco (F em minutos):
-            // P(F) = 0.00125 * F + 0.225
-            // O tempo de descanso (em minutos) é, portanto, uma função quadrática:
-            // R(F) = F * P(F) = 0.00125 * F^2 + 0.225 * F
-            const restMinutes = 0.00125 * Math.pow(focusMinutes, 2) + 0.225 * focusMinutes;
+
+            if (focusMinutes >= 90) {
+                const restMinutes = focusMinutes * 0.5;
+                return Math.round(restMinutes * 60);
+            }
+
+            // Nova progressão (linear para a porcentagem): 10m->~21.4%, 90m->50%
+            // A porcentagem de descanso (P) aumenta linearmente com o tempo de foco (F em minutos):
+            // P(F) = 0.00375 * F + 0.1625
+            // O tempo de descanso (R, em minutos) é uma função quadrática:
+            // R(F) = F * P(F) = 0.00375 * F^2 + 0.1625 * F
+            const restMinutes = 0.00375 * Math.pow(focusMinutes, 2) + 0.1625 * focusMinutes;
             return Math.round(restMinutes * 60);
         };
         const formatTime = (sec) => {
@@ -370,7 +378,24 @@
             const pad = (n) => String(n).padStart(2, '0');
             return h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
         };
-        const formatTimeShort = (sec) => `${Math.floor(sec / 60)}m ${sec % 60}s`;
+        const formatTimeShort = (sec) => {
+            if (sec < 0) sec = 0;
+            const totalMinutes = Math.floor(sec / 60);
+            
+            if (totalMinutes >= 60) {
+                const h = Math.floor(totalMinutes / 60);
+                const m = totalMinutes % 60;
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${h}:${pad(m)}`;
+            } else {
+                const m = totalMinutes;
+                const s = sec % 60;
+                let parts = [];
+                if (m > 0) parts.push(`${m}m`);
+                if (s > 0) parts.push(`${s}s`);
+                return parts.length > 0 ? parts.join(' ') : '0m';
+            }
+        };
 
         // --- Gerenciamento de Tarefas ---
         function renderTasks() {
@@ -626,6 +651,7 @@
             editingTaskId = null;
             timerDisplay.textContent = formatTime(0);
             timerDisplay.classList.remove('text-teal-400');
+            focusProjectionDisplay.innerHTML = '';
             updateUI();
         }
 
@@ -647,6 +673,9 @@
         function timerTick() {
             if (state === 'focusing') {
                 focusSeconds++;
+                if (focusSeconds === 5400 && synth) { // 90 minutes
+                    synth.triggerAttackRelease("C5", "0.5");
+                }
                 if (isCountdown) {
                     seconds--;
                     if (seconds <= 0) { isCountdown = false; seconds = focusSeconds; updateUI(); }
@@ -718,6 +747,30 @@
             const min = parseInt(minFocusMinInput.value, 10) || 0;
             const totalSeconds = (hr * 3600) + (min * 60);
             timerDisplay.textContent = formatTime(totalSeconds);
+
+            if (totalSeconds > 0) {
+                const restSeconds = calculateRestTime(totalSeconds);
+                const totalSessionSeconds = totalSeconds + restSeconds;
+                
+                const now = new Date();
+                const finishTime = new Date(now.getTime() + totalSessionSeconds * 1000);
+                const finishHours = String(finishTime.getHours()).padStart(2, '0');
+                const finishMinutes = String(finishTime.getMinutes()).padStart(2, '0');
+
+                const totalMinutes = Math.floor(totalSessionSeconds / 60);
+                const h = Math.floor(totalMinutes / 60);
+                const m = totalMinutes % 60;
+                const pad = (n) => String(n).padStart(2, '0');
+                const formattedTotalTime = h > 0 ? `${h}h${pad(m)}m` : `${m}m`;
+
+                focusProjectionDisplay.innerHTML = `
+                    <p>Descanso: <span class="font-semibold text-gray-300">${formatTimeShort(restSeconds)}</span></p>
+                    <p>Total: <span class="font-semibold text-gray-300">${formattedTotalTime}</span></p>
+                    <p>Finaliza às: <span class="font-semibold text-gray-300">${finishHours}:${finishMinutes}</span></p>
+                `;
+            } else {
+                focusProjectionDisplay.innerHTML = '';
+            }
         }
 
         endFocusBtn.addEventListener('click', () => {
@@ -867,8 +920,29 @@
             setTimeout(() => confirmationModal.classList.add('hidden'), 300);
         });
 
-        minFocusHrInput.addEventListener('input', updatePreSessionDisplay);
-        minFocusMinInput.addEventListener('input', updatePreSessionDisplay);
+        function handleMinFocusInput() {
+            let hr = parseInt(minFocusHrInput.value, 10) || 0;
+            let min = parseInt(minFocusMinInput.value, 10) || 0;
+
+            if (hr > 1) {
+                minFocusHrInput.value = 1;
+                hr = 1;
+            }
+            
+            if (hr === 1) {
+                minFocusMinInput.setAttribute('max', '30');
+                if (min > 30) {
+                    minFocusMinInput.value = 30;
+                }
+            } else {
+                minFocusMinInput.setAttribute('max', '59');
+            }
+            
+            updatePreSessionDisplay();
+        }
+
+        minFocusHrInput.addEventListener('input', handleMinFocusInput);
+        minFocusMinInput.addEventListener('input', handleMinFocusInput);
 
         // --- Inicialização ---
         loadState();
