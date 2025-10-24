@@ -110,6 +110,13 @@
 
             <!-- Controles Iniciais -->
             <div id="idle-controls" class="space-y-6">
+                <!-- Botão Cold Start -->
+                <div id="cold-start-container">
+                    <button id="cold-start-btn"
+                        class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-4 rounded-lg text-lg shadow-lg">
+                        Cold Start
+                    </button>
+                </div>
                 <!-- Seletor de Modo -->
                 <div class="flex items-center justify-center space-x-3 text-sm font-medium text-gray-300">
                     <span>Dia</span>
@@ -219,6 +226,51 @@
     </div>
 
 
+    <!-- Modal de Confirmação Cold Start -->
+    <div id="cold-start-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center">
+            <h3 class="text-lg font-bold text-white mb-2">Vamos dar prosseguimento ao foco?</h3>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="confirm-cold-start-btn"
+                    class="btn bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">Confirmar</button>
+                <button id="stop-cold-start-btn"
+                    class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg">Parar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuração Pós Cold Start -->
+    <div id="cold-start-config-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
+            <h3 class="text-lg font-bold text-white">Configurar Sessão de Foco</h3>
+            
+            <!-- Seção de Tarefas -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Associar a uma tarefa (opcional):</label>
+                <div id="cs-task-list" class="task-list space-y-2 p-2 bg-gray-900/50 rounded-lg max-h-32 overflow-y-auto">
+                    <!-- A lista de tarefas será renderizada aqui -->
+                </div>
+            </div>
+
+            <!-- Seção de Foco Mínimo -->
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Tempo de foco mínimo (opcional):</label>
+                <div class="flex gap-2">
+                    <input type="number" id="cs-min-focus-hr" min="0" max="1" placeholder="Hr"
+                        class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                    <input type="number" id="cs-min-focus-min" min="0" max="59" placeholder="Min"
+                        class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                </div>
+            </div>
+
+            <button id="confirm-cs-config-btn"
+                class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar Foco</button>
+        </div>
+    </div>
+
+
     <script>
         // --- Web Worker ---
         const workerCode = `
@@ -274,6 +326,17 @@
         const continueFocusBtn = document.getElementById('continue-focus-btn');
         const confirmEndFocusBtn = document.getElementById('confirm-end-focus-btn');
         const focusProjectionDisplay = document.getElementById('focus-projection-display');
+        const coldStartBtn = document.getElementById('cold-start-btn');
+        const coldStartModal = document.getElementById('cold-start-modal');
+        const confirmColdStartBtn = document.getElementById('confirm-cold-start-btn');
+        const stopColdStartBtn = document.getElementById('stop-cold-start-btn');
+        const coldStartContainer = document.getElementById('cold-start-container');
+        const coldStartConfigModal = document.getElementById('cold-start-config-modal');
+        const csTaskList = document.getElementById('cs-task-list');
+        const csMinFocusHrInput = document.getElementById('cs-min-focus-hr');
+        const csMinFocusMinInput = document.getElementById('cs-min-focus-min');
+        const confirmCsConfigBtn = document.getElementById('confirm-cs-config-btn');
+
 
         // --- Melhoria de UX: Selecionar texto ao focar ---
         document.querySelectorAll('input[type=text], input[type=number]').forEach(input => {
@@ -331,23 +394,32 @@
             sessionFocusTime = saved.sessionFocusTime || 0;
             editingTaskId = saved.editingTaskId || null;
 
-            if (state === 'focusing') {
+            if (state === 'focusing' || state === 'cold_starting' || state === 'cold_start_pending' || state === 'cold_start_configuring') {
                 focusSeconds += timeSinceLastSave;
                 if (isCountdown) seconds -= timeSinceLastSave; else seconds += timeSinceLastSave;
             } else if (state === 'resting') {
                 seconds -= timeSinceLastSave;
             }
 
-            if (seconds <= 0 && (state === 'resting' || (state === 'focusing' && isCountdown))) {
-                endSessionAndReset(false);
-                return;
+            if (seconds <= 0 && (state === 'resting' || (state === 'focusing' && isCountdown) || state === 'cold_starting')) {
+                if (state === 'cold_starting') {
+                    state = 'cold_start_pending';
+                    focusSeconds = 120;
+                    seconds = 120;
+                    isCountdown = false;
+                    coldStartModal.classList.remove('hidden');
+                    setTimeout(() => coldStartModal.classList.remove('opacity-0'), 10);
+                } else {
+                    endSessionAndReset(false);
+                    return;
+                }
             }
 
             const displaySeconds = isCountdown ? seconds : (state === 'focusing' ? focusSeconds : seconds);
             timerDisplay.textContent = formatTime(displaySeconds);
 
             updateUI();
-            if (state === 'focusing' || state === 'resting') {
+            if (['focusing', 'resting', 'cold_starting', 'cold_start_pending', 'cold_start_configuring'].includes(state)) {
                 worker.postMessage({ command: 'start' });
             }
         }
@@ -503,6 +575,24 @@
             }
         }
 
+        function renderCSTasks() {
+            csTaskList.innerHTML = '';
+            const availableTasks = tasks.filter(t => t.id !== 'day_goal' && !(t.proposedTime > 0 && t.dedicatedTime >= t.proposedTime * 60));
+            if (availableTasks.length === 0) {
+                csTaskList.innerHTML = `<p class="text-gray-500 text-center italic text-sm">Nenhuma tarefa disponível.</p>`;
+                return;
+            }
+            availableTasks.forEach(task => {
+                const taskEl = document.createElement('div');
+                taskEl.className = 'flex items-center gap-3 p-2 rounded-md hover:bg-gray-700 cursor-pointer';
+                taskEl.innerHTML = `
+                    <input type="radio" id="cs-task-${task.id}" name="cs-task" value="${task.id}" class="form-radio h-4 w-4 text-cyan-600 bg-gray-700 border-gray-600 focus:ring-cyan-500">
+                    <label for="cs-task-${task.id}" class="text-white text-sm">${task.name}</label>
+                `;
+                csTaskList.appendChild(taskEl);
+            });
+        }
+
 
         function selectTask(taskId) {
             selectedTaskId = selectedTaskId === taskId ? null : taskId;
@@ -634,6 +724,16 @@
                     endRestBtn.style.display = 'block';
                     endRestBtn.classList.add('sm:col-span-2');
                     timerDisplay.classList.add('text-teal-400');
+                } else if (state === 'cold_starting') {
+                    statusText.textContent = 'Preparando para o foco...';
+                    sessionTaskIndicator.textContent = 'Aguarde o início do Cold Start.';
+                    goalRemainingIndicator.textContent = '';
+                } else if (state === 'cold_start_pending' || state === 'cold_start_configuring') {
+                    statusText.textContent = 'Foco em andamento...';
+                    sessionTaskIndicator.textContent = 'Configure sua sessão para continuar.';
+                    goalRemainingIndicator.textContent = '';
+                    restPreviewContainer.style.display = 'flex';
+                    statusIndicator.classList.add('bg-green-500');
                 }
             }
         }
@@ -671,7 +771,7 @@
 
         // --- Lógica do Cronômetro ---
         function timerTick() {
-            if (state === 'focusing') {
+            if (['focusing', 'cold_start_pending', 'cold_start_configuring'].includes(state)) {
                 focusSeconds++;
                 if (focusSeconds === 5400 && synth) { // 90 minutes
                     synth.triggerAttackRelease("C5", "0.5");
@@ -684,12 +784,24 @@
                 }
                 timerDisplay.textContent = formatTime(isCountdown ? seconds : focusSeconds);
                 restPreview.textContent = formatTimeShort(isCountdown ? 0 : calculateRestTime(focusSeconds));
-                updateGoalIndicator();
+                if (state === 'focusing') updateGoalIndicator();
             } else if (state === 'resting') {
                 seconds--;
                 timerDisplay.textContent = formatTime(seconds);
                 if (seconds <= 0) {
                     setTimeout(() => endSessionAndReset(true), 1000);
+                }
+            } else if (state === 'cold_starting') {
+                seconds--;
+                timerDisplay.textContent = formatTime(seconds);
+                if (seconds <= 0) {
+                    state = 'cold_start_pending';
+                    focusSeconds = 11;
+                    seconds = 11;
+                    isCountdown = false;
+                    updateUI();
+                    coldStartModal.classList.remove('hidden');
+                    setTimeout(() => coldStartModal.classList.remove('opacity-0'), 10);
                 }
             }
             saveState(); // Salva o estado a cada tick
@@ -740,6 +852,88 @@
             worker.postMessage({ command: 'start' });
             saveState();
         }
+
+        function startColdStart() {
+            initializeAudio();
+            let generalTask = tasks.find(t => t.id === 'general');
+            if (!generalTask) {
+                generalTask = { id: 'general', name: "Geral", proposedTime: 0, dedicatedTime: 0 };
+                tasks.push(generalTask);
+            }
+            currentTaskId = 'general';
+            sessionFocusTime = 0;
+            seconds = 11; // 2 minutes countdown
+            focusSeconds = 11;
+            isCountdown = true;
+            state = 'cold_starting';
+            updateUI();
+            worker.postMessage({ command: 'start' });
+            saveState();
+        }
+
+        coldStartBtn.addEventListener('click', startColdStart);
+
+        confirmColdStartBtn.addEventListener('click', () => {
+            coldStartModal.classList.add('opacity-0');
+            setTimeout(() => coldStartModal.classList.add('hidden'), 300);
+            
+            state = 'cold_start_configuring';
+            renderCSTasks();
+            csMinFocusHrInput.value = '';
+            csMinFocusMinInput.value = '';
+            coldStartConfigModal.classList.remove('hidden');
+            setTimeout(() => coldStartConfigModal.classList.remove('opacity-0'), 10);
+            
+            updateUI();
+            saveState();
+        });
+
+        stopColdStartBtn.addEventListener('click', () => {
+            coldStartModal.classList.add('opacity-0');
+            setTimeout(() => coldStartModal.classList.add('hidden'), 300);
+            resetToIdle();
+            saveState();
+        });
+
+        confirmCsConfigBtn.addEventListener('click', () => {
+            const selectedTaskRadio = document.querySelector('input[name="cs-task"]:checked');
+            if (selectedTaskRadio) {
+                currentTaskId = selectedTaskRadio.value;
+            } else {
+                let dayTask = tasks.find(t => t.id === 'day_goal');
+                if (!dayTask) {
+                    dayTask = { id: 'day_goal', name: "Rendimento no dia", proposedTime: 0, dedicatedTime: 0 };
+                    tasks.push(dayTask);
+                }
+                currentTaskId = 'day_goal';
+            }
+
+            const hr = parseInt(csMinFocusHrInput.value, 10) || 0;
+            const min = parseInt(csMinFocusMinInput.value, 10) || 0;
+            const minFocusValue = (hr * 3600) + (min * 60);
+
+            if (minFocusValue > 0) {
+                minFocusSeconds = minFocusValue;
+                const remainingSeconds = minFocusSeconds - focusSeconds;
+                if (remainingSeconds > 0) {
+                    seconds = remainingSeconds;
+                    isCountdown = true;
+                } else {
+                    isCountdown = false;
+                    seconds = focusSeconds;
+                }
+            } else {
+                minFocusSeconds = 0;
+                seconds = focusSeconds;
+                isCountdown = false;
+            }
+
+            state = 'focusing';
+            coldStartConfigModal.classList.add('opacity-0');
+            setTimeout(() => coldStartConfigModal.classList.add('hidden'), 300);
+            updateUI();
+            saveState();
+        });
 
         function updatePreSessionDisplay() {
             if (state !== 'idle') return;
