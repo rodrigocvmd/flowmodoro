@@ -230,12 +230,13 @@
     <div id="cold-start-modal"
         class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
         <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center">
-            <h3 class="text-lg font-bold text-white mb-2">Vamos dar prosseguimento ao foco?</h3>
+            <h3 class="text-lg font-bold text-white mb-2">A sua sessão de cold start terminou!</h3>
+            <p class="text-gray-300 mb-6">O que você fará a seguir?</p>
             <div class="flex justify-center gap-4 mt-6">
                 <button id="confirm-cold-start-btn"
                     class="btn bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg">Confirmar</button>
                 <button id="stop-cold-start-btn"
-                    class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg">Parar</button>
+                    class="btn bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg">Interromper</button>
             </div>
         </div>
     </div>
@@ -267,6 +268,23 @@
 
             <button id="confirm-cs-config-btn"
                 class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar Foco</button>
+        </div>
+    </div>
+
+    <!-- Modal de Microtarefas Cold Start -->
+    <div id="micro-tasks-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
+            <h3 class="text-lg font-bold text-white">Microtarefas</h3>
+            <div id="micro-tasks-list" class="space-y-1">
+                <input type="text" placeholder="Microtarefa 1" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 2" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 3" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 4" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 5" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+            </div>
+            <button id="proceed-cold-start-btn"
+                class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Prosseguir Cold Start</button>
         </div>
     </div>
 
@@ -336,6 +354,9 @@
         const csMinFocusHrInput = document.getElementById('cs-min-focus-hr');
         const csMinFocusMinInput = document.getElementById('cs-min-focus-min');
         const confirmCsConfigBtn = document.getElementById('confirm-cs-config-btn');
+        const microTasksModal = document.getElementById('micro-tasks-modal');
+        const microTasksList = document.getElementById('micro-tasks-list');
+        const proceedColdStartBtn = document.getElementById('proceed-cold-start-btn');
 
 
         // --- Melhoria de UX: Selecionar texto ao focar ---
@@ -353,6 +374,7 @@
         let selectedTaskId = null;
         let sessionFocusTime = 0;
         let editingTaskId = null;
+        let microTasks = [];
 
         // --- Lógica de Áudio ---
         let synth;
@@ -486,14 +508,10 @@
                 const isSelected = task.id === selectedTaskId;
                 let baseClasses = 'task-item p-3 rounded-lg relative flex items-center justify-around gap-2 cursor-pointer transition-colors';
 
-                if (isCompleted) {
-                    baseClasses += ' bg-gray-700 opacity-60';
+                if (isSelected) {
+                    baseClasses += ' bg-gray-600';
                 } else {
-                    if (isSelected) {
-                        baseClasses += ' bg-gray-600';
-                    } else {
-                        baseClasses += ' bg-gray-700 hover:bg-gray-600';
-                    }
+                    baseClasses += ' bg-gray-700 hover:bg-gray-600';
                 }
 
                 taskEl.className = baseClasses;
@@ -726,11 +744,19 @@
                     timerDisplay.classList.add('text-teal-400');
                 } else if (state === 'cold_starting') {
                     statusText.textContent = 'Preparando para o foco...';
-                    sessionTaskIndicator.textContent = 'Aguarde o início do Cold Start.';
+                    if (microTasks.length > 0) {
+                        sessionTaskIndicator.textContent = microTasks.join(' -> ');
+                    } else {
+                        sessionTaskIndicator.textContent = 'Aguarde o início do Cold Start.';
+                    }
                     goalRemainingIndicator.textContent = '';
                 } else if (state === 'cold_start_pending' || state === 'cold_start_configuring') {
                     statusText.textContent = 'Foco em andamento...';
-                    sessionTaskIndicator.textContent = 'Configure sua sessão para continuar.';
+                    if (microTasks.length > 0) {
+                        sessionTaskIndicator.textContent = microTasks.join(' -> ');
+                    } else {
+                        sessionTaskIndicator.textContent = 'Configure sua sessão para continuar.';
+                    }
                     goalRemainingIndicator.textContent = '';
                     restPreviewContainer.style.display = 'flex';
                     statusIndicator.classList.add('bg-green-500');
@@ -749,6 +775,7 @@
             selectedTaskId = null;
             sessionFocusTime = 0;
             editingTaskId = null;
+            microTasks = [];
             timerDisplay.textContent = formatTime(0);
             timerDisplay.classList.remove('text-teal-400');
             focusProjectionDisplay.innerHTML = '';
@@ -771,37 +798,46 @@
 
         // --- Lógica do Cronômetro ---
         function timerTick() {
-            if (['focusing', 'cold_start_pending', 'cold_start_configuring'].includes(state)) {
+            if (['focusing', 'cold_starting', 'cold_start_pending', 'cold_start_configuring'].includes(state)) {
                 focusSeconds++;
                 if (focusSeconds === 5400 && synth) { // 90 minutes
                     synth.triggerAttackRelease("C5", "0.5");
                 }
                 if (isCountdown) {
                     seconds--;
-                    if (seconds <= 0) { isCountdown = false; seconds = focusSeconds; updateUI(); }
+                    if (seconds <= 0) {
+                        if (state === 'cold_starting') {
+                            state = 'cold_start_pending';
+                            focusSeconds = 120;
+                            seconds = 120;
+                            isCountdown = false;
+                            updateUI();
+                            coldStartModal.classList.remove('hidden');
+                            setTimeout(() => coldStartModal.classList.remove('opacity-0'), 10);
+                        } else {
+                            isCountdown = false;
+                            seconds = focusSeconds;
+                            updateUI();
+                        }
+                    }
                 } else {
                     seconds++;
                 }
-                timerDisplay.textContent = formatTime(isCountdown ? seconds : focusSeconds);
+
+                if (state === 'cold_starting') {
+                    timerDisplay.textContent = formatTime(seconds);
+                } else {
+                    timerDisplay.textContent = formatTime(isCountdown ? seconds : focusSeconds);
+                }
+
                 restPreview.textContent = formatTimeShort(isCountdown ? 0 : calculateRestTime(focusSeconds));
                 if (state === 'focusing') updateGoalIndicator();
+
             } else if (state === 'resting') {
                 seconds--;
                 timerDisplay.textContent = formatTime(seconds);
                 if (seconds <= 0) {
                     setTimeout(() => endSessionAndReset(true), 1000);
-                }
-            } else if (state === 'cold_starting') {
-                seconds--;
-                timerDisplay.textContent = formatTime(seconds);
-                if (seconds <= 0) {
-                    state = 'cold_start_pending';
-                    focusSeconds = 11;
-                    seconds = 11;
-                    isCountdown = false;
-                    updateUI();
-                    coldStartModal.classList.remove('hidden');
-                    setTimeout(() => coldStartModal.classList.remove('opacity-0'), 10);
                 }
             }
             saveState(); // Salva o estado a cada tick
@@ -855,6 +891,17 @@
 
         function startColdStart() {
             initializeAudio();
+            microTasksModal.classList.remove('hidden');
+            setTimeout(() => microTasksModal.classList.remove('opacity-0'), 10);
+        }
+
+        coldStartBtn.addEventListener('click', startColdStart);
+
+        proceedColdStartBtn.addEventListener('click', () => {
+            microTasks = Array.from(microTasksList.querySelectorAll('input')).map(input => input.value.trim()).filter(value => value);
+            microTasksModal.classList.add('opacity-0');
+            setTimeout(() => microTasksModal.classList.add('hidden'), 300);
+
             let generalTask = tasks.find(t => t.id === 'general');
             if (!generalTask) {
                 generalTask = { id: 'general', name: "Geral", proposedTime: 0, dedicatedTime: 0 };
@@ -862,16 +909,14 @@
             }
             currentTaskId = 'general';
             sessionFocusTime = 0;
-            seconds = 11; // 2 minutes countdown
-            focusSeconds = 11;
+            seconds = 120; // 2 minutes countdown
+            focusSeconds = 0;
             isCountdown = true;
             state = 'cold_starting';
             updateUI();
             worker.postMessage({ command: 'start' });
             saveState();
-        }
-
-        coldStartBtn.addEventListener('click', startColdStart);
+        });
 
         confirmColdStartBtn.addEventListener('click', () => {
             coldStartModal.classList.add('opacity-0');
@@ -891,6 +936,7 @@
         stopColdStartBtn.addEventListener('click', () => {
             coldStartModal.classList.add('opacity-0');
             setTimeout(() => coldStartModal.classList.add('hidden'), 300);
+            microTasks = [];
             resetToIdle();
             saveState();
         });
