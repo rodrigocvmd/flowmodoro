@@ -62,7 +62,16 @@
 
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-md mx-auto p-4 sm:p-6 md:p-7 bg-gray-800 rounded-2xl shadow-2xl space-y-6 md:space-y-8">
+    <div class="relative theMainBox w-full max-w-md mx-auto p-4 sm:p-6 md:p-7 bg-gray-800 rounded-2xl shadow-2xl space-y-6 md:space-y-8">
+
+        <!-- Sonora Button -->
+        <div class="absolute top-4 right-4">
+            <button id="sonora-btn" class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                </svg>
+            </button>
+        </div>
 
         <!-- Cabeçalho -->
         <header class="text-center">
@@ -246,11 +255,12 @@
         class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
         <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
             <h3 class="text-lg font-bold text-white">Configurar Sessão de Foco</h3>
-            
+
             <!-- Seção de Tarefas -->
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Associar a uma tarefa (opcional):</label>
-                <div id="cs-task-list" class="task-list space-y-2 p-2 bg-gray-900/50 rounded-lg max-h-32 overflow-y-auto">
+                <div id="cs-task-list"
+                    class="task-list space-y-2 p-2 bg-gray-900/50 rounded-lg max-h-32 overflow-y-auto">
                     <!-- A lista de tarefas será renderizada aqui -->
                 </div>
             </div>
@@ -267,7 +277,8 @@
             </div>
 
             <button id="confirm-cs-config-btn"
-                class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar Foco</button>
+                class="btn w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Iniciar
+                Foco</button>
         </div>
     </div>
 
@@ -277,14 +288,35 @@
         <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
             <h3 class="text-lg font-bold text-white">Microtarefas</h3>
             <div id="micro-tasks-list" class="space-y-1">
-                <input type="text" placeholder="Microtarefa 1" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-                <input type="text" placeholder="Microtarefa 2" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-                <input type="text" placeholder="Microtarefa 3" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-                <input type="text" placeholder="Microtarefa 4" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
-                <input type="text" placeholder="Microtarefa 5" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 1"
+                    class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 2"
+                    class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 3"
+                    class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 4"
+                    class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
+                <input type="text" placeholder="Microtarefa 5"
+                    class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none">
             </div>
             <button id="proceed-cold-start-btn"
-                class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Prosseguir Cold Start</button>
+                class="btn w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Prosseguir
+                Cold Start</button>
+        </div>
+    </div>
+
+    <!-- Modal Sonora -->
+    <div id="sonora-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
+            <h3 class="text-lg font-bold text-white">Sonora</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="ambient-btn"
+                    class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Ambient</button>
+                <button id="setlist-btn" class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Setlist</button>
+                <button id="playlist-btn" class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Playlist</button>
+                <button id="chill-btn" class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Chill</button>
+            </div>
         </div>
     </div>
 
@@ -357,7 +389,18 @@
         const microTasksModal = document.getElementById('micro-tasks-modal');
         const microTasksList = document.getElementById('micro-tasks-list');
         const proceedColdStartBtn = document.getElementById('proceed-cold-start-btn');
+        const sonoraBtn = document.getElementById('sonora-btn');
+        const sonoraModal = document.getElementById('sonora-modal');
+        const ambientBtn = document.getElementById('ambient-btn');
+        const setlistBtn = document.getElementById('setlist-btn');
+        const playlistBtn = document.getElementById('playlist-btn');
+        const chillBtn = document.getElementById('chill-btn');
 
+
+        const ambientLinks = ['https://link1.com', 'https://link2.com'];
+        const setlistLinks = ['https://www.youtube.com/watch?v=T2QZpy07j4s', 'https://www.youtube.com/watch?v=_Q8Ih2SW-TE'];
+        const playlistLinks = ['https://link1.com', 'https://link2.com'];
+        const chillLinks = ['https://link1.com', 'https://link2.com'];
 
         // --- Melhoria de UX: Selecionar texto ao focar ---
         document.querySelectorAll('input[type=text], input[type=number]').forEach(input => {
@@ -475,7 +518,7 @@
         const formatTimeShort = (sec) => {
             if (sec < 0) sec = 0;
             const totalMinutes = Math.floor(sec / 60);
-            
+
             if (totalMinutes >= 60) {
                 const h = Math.floor(totalMinutes / 60);
                 const m = totalMinutes % 60;
@@ -921,14 +964,14 @@
         confirmColdStartBtn.addEventListener('click', () => {
             coldStartModal.classList.add('opacity-0');
             setTimeout(() => coldStartModal.classList.add('hidden'), 300);
-            
+
             state = 'cold_start_configuring';
             renderCSTasks();
             csMinFocusHrInput.value = '';
             csMinFocusMinInput.value = '';
             coldStartConfigModal.classList.remove('hidden');
             setTimeout(() => coldStartConfigModal.classList.remove('opacity-0'), 10);
-            
+
             updateUI();
             saveState();
         });
@@ -991,7 +1034,7 @@
             if (totalSeconds > 0) {
                 const restSeconds = calculateRestTime(totalSeconds);
                 const totalSessionSeconds = totalSeconds + restSeconds;
-                
+
                 const now = new Date();
                 const finishTime = new Date(now.getTime() + totalSessionSeconds * 1000);
                 const finishHours = String(finishTime.getHours()).padStart(2, '0');
@@ -1168,7 +1211,7 @@
                 minFocusHrInput.value = 1;
                 hr = 1;
             }
-            
+
             if (hr === 1) {
                 minFocusMinInput.setAttribute('max', '30');
                 if (min > 30) {
@@ -1177,12 +1220,44 @@
             } else {
                 minFocusMinInput.setAttribute('max', '59');
             }
-            
+
             updatePreSessionDisplay();
         }
 
         minFocusHrInput.addEventListener('input', handleMinFocusInput);
         minFocusMinInput.addEventListener('input', handleMinFocusInput);
+
+        sonoraBtn.addEventListener('click', () => {
+            sonoraModal.classList.remove('hidden');
+            setTimeout(() => sonoraModal.classList.remove('opacity-0'), 10);
+        });
+
+        sonoraModal.addEventListener('click', (e) => {
+            if (e.target === sonoraModal) {
+                sonoraModal.classList.add('opacity-0');
+                setTimeout(() => sonoraModal.classList.add('hidden'), 300);
+            }
+        });
+
+        ambientBtn.addEventListener('click', () => {
+            const randomLink = ambientLinks[Math.floor(Math.random() * ambientLinks.length)];
+            window.open(randomLink, '_blank');
+        });
+
+        setlistBtn.addEventListener('click', () => {
+            const randomLink = setlistLinks[Math.floor(Math.random() * setlistLinks.length)];
+            window.open(randomLink, '_blank');
+        });
+
+        playlistBtn.addEventListener('click', () => {
+            const randomLink = playlistLinks[Math.floor(Math.random() * playlistLinks.length)];
+            window.open(randomLink, '_blank');
+        });
+
+        chillBtn.addEventListener('click', () => {
+            const randomLink = chillLinks[Math.floor(Math.random() * chillLinks.length)];
+            window.open(randomLink, '_blank');
+        });
 
         // --- Inicialização ---
         loadState();
