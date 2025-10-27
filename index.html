@@ -166,39 +166,6 @@
                             <div id="expected-progress-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full" style="left: 0%; display: none;"></div>
                         </div>
                     </div>
-
-                    <!-- Período de Foco Toggle -->
-                    <div class="flex items-center justify-center space-x-3 text-sm font-medium text-gray-300 !mt-4">
-                        <label for="focus-period-toggle" class="cursor-pointer">Período de Foco</label>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="focus-period-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-cyan-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                        </label>
-                        <span id="focus-period-message" class="text-xs text-red-400"></span>
-                    </div>
-
-                    <!-- Período de Foco Config -->
-                    <div id="focus-period-config" class="hidden space-y-3 !mt-4 p-3 bg-gray-900/50 rounded-lg">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
-                                <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
-                                <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
-                                <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
-                                <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                        </div>
-                    </div>
-
                     <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
@@ -235,6 +202,38 @@
                                 class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Definir</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Período de Foco Section -->
+                <div id="focus-period-section" class="space-y-2 !mt-4">
+                    <div id="focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
+                        <span class="text-base font-medium text-gray-300">Período de Foco</span>
+                        <svg id="focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <span id="focus-period-message" class="block text-center text-xs text-red-400"></span>
+                    <!-- Período de Foco Config -->
+                    <div id="focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <button id="reset-day-btn"
@@ -502,7 +501,8 @@
         const planningProgressContainer = document.getElementById('planning-progress-container');
         const planningProgressText = document.getElementById('planning-progress-text');
         const planningProgressBar = document.getElementById('planning-progress-bar');
-        const focusPeriodToggle = document.getElementById('focus-period-toggle');
+        const focusPeriodHeader = document.getElementById('focus-period-header');
+        const focusPeriodArrow = document.getElementById('focus-period-arrow');
         const focusPeriodMessage = document.getElementById('focus-period-message');
         const focusPeriodConfig = document.getElementById('focus-period-config');
         const fpStartTime = document.getElementById('fp-start-time');
@@ -571,11 +571,12 @@
             modeToggle.checked = appMode === 'tasks';
 
             focusPeriodSettings = saved.focusPeriodSettings || { enabled: false, start: '', end: '', break: '', return: '' };
-            focusPeriodToggle.checked = focusPeriodSettings.enabled;
             fpStartTime.value = focusPeriodSettings.start;
             fpEndTime.value = focusPeriodSettings.end;
             fpBreakTime.value = focusPeriodSettings.break;
             fpReturnTime.value = focusPeriodSettings.return;
+            focusPeriodConfig.classList.add('hidden');
+            focusPeriodArrow.classList.remove('rotate-180');
 
             if (saved.state === 'idle' || saved.state === 'paused') { // Tratar estado pausado como idle ao recarregar
                 resetToIdle();
@@ -885,13 +886,14 @@
                     renderTasks();
                     const totalProposedTime = tasks.filter(t => t.id !== 'day_goal').reduce((acc, task) => acc + (task.proposedTime * 60), 0);
                     if (totalProposedTime > 0) {
-                        focusPeriodToggle.disabled = false;
+                        focusPeriodHeader.style.pointerEvents = 'auto';
+                        focusPeriodHeader.style.opacity = '1';
                         focusPeriodMessage.textContent = '';
                     } else {
-                        focusPeriodToggle.disabled = true;
-                        focusPeriodToggle.checked = false;
-                        focusPeriodSettings.enabled = false;
-                        focusPeriodConfig.style.display = 'none';
+                        focusPeriodHeader.style.pointerEvents = 'none';
+                        focusPeriodHeader.style.opacity = '0.5';
+                        focusPeriodConfig.classList.add('hidden');
+                        focusPeriodArrow.classList.remove('rotate-180');
                         expectedProgressIndicator.style.display = 'none';
                         focusPeriodMessage.textContent = 'Insira o tempo de foco';
                     }
@@ -1421,7 +1423,7 @@
         });
 
         function calculateAndShowExpectedProgress() {
-            if (!focusPeriodSettings.enabled || !focusPeriodSettings.start || !focusPeriodSettings.end) {
+            if (!focusPeriodSettings.start || !focusPeriodSettings.end) {
                 expectedProgressIndicator.style.display = 'none';
                 return;
             }
@@ -1641,16 +1643,9 @@
             }
         });
 
-        focusPeriodToggle.addEventListener('change', (e) => {
-            focusPeriodSettings.enabled = e.target.checked;
-            if (focusPeriodSettings.enabled) {
-                focusPeriodConfig.style.display = 'block';
-                expectedProgressIndicator.style.display = 'block';
-            } else {
-                focusPeriodConfig.style.display = 'none';
-                expectedProgressIndicator.style.display = 'none';
-            }
-            saveState();
+        focusPeriodHeader.addEventListener('click', () => {
+            focusPeriodConfig.classList.toggle('hidden');
+            focusPeriodArrow.classList.toggle('rotate-180');
         });
 
         [fpStartTime, fpEndTime, fpBreakTime, fpReturnTime].forEach(input => {
