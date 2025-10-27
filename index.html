@@ -57,6 +57,14 @@
         .task-item .right-3 {
             z-index: 20;
         }
+        .show-tooltip-on-hover:hover + #focus-period-message {
+            opacity: 1;
+            transform: scale(1) translateX(-50%);
+        }
+        #day-focus-period-header-wrapper.show-tooltip-on-hover:hover + #day-focus-period-message {
+            opacity: 1;
+            transform: scale(1) translateX(-50%);
+        }
     </style>
 </head>
 
@@ -184,11 +192,60 @@
                                 class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
                         </div>
                     </form>
+
+                    <!-- Período de Foco Section -->
+                    <div id="focus-period-section" class="space-y-2 !mt-4 relative">
+                        <div id="focus-period-header-wrapper">
+                            <div id="focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
+                                <span class="text-base font-medium text-gray-300">Período de Foco</span>
+                                <svg id="focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div id="focus-period-message" class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
+                            Insira o tempo de foco
+                        </div>
+
+                        <!-- Período de Foco Config -->
+                        <div id="focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                    <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                    <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                    <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                    <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Container Modo Dia -->
                 <div id="day-mode-container" class="hidden space-y-4">
                     <div id="day-goal-display" class="bg-gray-700 p-3 rounded-lg"></div>
+
+                    <div id="day-progress-container" class="space-y-2 !mt-4">
+                        <div class="flex justify-between text-sm font-medium text-gray-300">
+                            <span>Progresso do Dia</span>
+                            <span id="day-progress-text"></span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5 relative">
+                            <div id="day-progress-bar" class="bg-teal-600 h-2.5 rounded-full" style="width: 0%"></div>
+                            <div id="day-expected-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full" style="left: 0%; display: none;"></div>
+                        </div>
+                    </div>
+
                     <form id="set-day-goal-form" class="space-y-3">
                         <label class="block text-sm font-medium text-gray-300">Definir meta para o dia:</label>
                         <div class="grid grid-cols-3 gap-3">
@@ -202,35 +259,39 @@
                                 class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Definir</button>
                         </div>
                     </form>
-                </div>
 
-                <!-- Período de Foco Section -->
-                <div id="focus-period-section" class="space-y-2 !mt-4">
-                    <div id="focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
-                        <span class="text-base font-medium text-gray-300">Período de Foco</span>
-                        <svg id="focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <span id="focus-period-message" class="block text-center text-xs text-red-400"></span>
-                    <!-- Período de Foco Config -->
-                    <div id="focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
-                                <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                    <!-- Day Focus Period Section -->
+                    <div id="day-focus-period-section" class="space-y-2 !mt-4 relative">
+                        <div id="day-focus-period-header-wrapper">
+                            <div id="day-focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
+                                <span class="text-base font-medium text-gray-300">Período de Foco</span>
+                                <svg id="day-focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
-                            <div>
-                                <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
-                                <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
-                                <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
-                                <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                        </div>
+                        <div id="day-focus-period-message" class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
+                            Defina uma meta para o dia
+                        </div>
+
+                        <div id="day-focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="day-fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                    <input type="time" id="day-fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="day-fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                    <input type="time" id="day-fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="day-fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                    <input type="time" id="day-fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
+                                <div>
+                                    <label for="day-fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                    <input type="time" id="day-fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -502,6 +563,7 @@
         const planningProgressText = document.getElementById('planning-progress-text');
         const planningProgressBar = document.getElementById('planning-progress-bar');
         const focusPeriodHeader = document.getElementById('focus-period-header');
+        const focusPeriodHeaderWrapper = document.getElementById('focus-period-header-wrapper');
         const focusPeriodArrow = document.getElementById('focus-period-arrow');
         const focusPeriodMessage = document.getElementById('focus-period-message');
         const focusPeriodConfig = document.getElementById('focus-period-config');
@@ -510,6 +572,20 @@
         const fpBreakTime = document.getElementById('fp-break-time');
         const fpReturnTime = document.getElementById('fp-return-time');
         const expectedProgressIndicator = document.getElementById('expected-progress-indicator');
+
+        //--- Day Mode Refs ---
+        const dayProgressContainer = document.getElementById('day-progress-container');
+        const dayProgressText = document.getElementById('day-progress-text');
+        const dayProgressBar = document.getElementById('day-progress-bar');
+        const dayExpectedIndicator = document.getElementById('day-expected-indicator');
+        const dayFocusPeriodHeaderWrapper = document.getElementById('day-focus-period-header-wrapper');
+        const dayFocusPeriodHeader = document.getElementById('day-focus-period-header');
+        const dayFocusPeriodArrow = document.getElementById('day-focus-period-arrow');
+        const dayFocusPeriodConfig = document.getElementById('day-focus-period-config');
+        const dayFpStartTime = document.getElementById('day-fp-start-time');
+        const dayFpEndTime = document.getElementById('day-fp-end-time');
+        const dayFpBreakTime = document.getElementById('day-fp-break-time');
+        const dayFpReturnTime = document.getElementById('day-fp-return-time');
 
 
         const ambientLinks = ['https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=hYVa0sYAe5Q&t=392s', 'https://www.youtube.com/watch?v=eX-_DVDuXsM', 'https://www.youtube.com/watch?v=pGnmhVkronY', 'https://www.youtube.com/watch?v=TG8ERLOfMp0', 'https://www.youtube.com/watch?v=V6uL50dnKp4', 'https://www.youtube.com/watch?v=IwcdBPWsdQI', 'https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=q62Kx3wBGwE', 'https://www.youtube.com/watch?v=zGAcR9kStpM', 'https://www.youtube.com/watch?v=zcv-Sx-vWK8', 'https://www.youtube.com/watch?v=1XObQFBxpMM', 'https://www.youtube.com/watch?v=qhB2OFTZujM'];
@@ -545,6 +621,12 @@
             break: '',
             return: ''
         };
+        let dayFocusPeriodSettings = {
+            start: '',
+            end: '',
+            break: '',
+            return: ''
+        };
 
         // --- Lógica de Áudio ---
         let synth;
@@ -554,7 +636,7 @@
 
         // --- Funções de Persistência (LocalStorage) ---
         function saveState() {
-            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, editingTaskId, lastSaveTimestamp: Date.now(), focusPeriodSettings };
+            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, editingTaskId, lastSaveTimestamp: Date.now(), focusPeriodSettings, dayFocusPeriodSettings };
             localStorage.setItem('flowmodoroState', JSON.stringify(appState));
         }
 
@@ -577,6 +659,14 @@
             fpReturnTime.value = focusPeriodSettings.return;
             focusPeriodConfig.classList.add('hidden');
             focusPeriodArrow.classList.remove('rotate-180');
+
+            dayFocusPeriodSettings = saved.dayFocusPeriodSettings || { start: '', end: '', break: '', return: '' };
+            document.getElementById('day-fp-start-time').value = dayFocusPeriodSettings.start;
+            document.getElementById('day-fp-end-time').value = dayFocusPeriodSettings.end;
+            document.getElementById('day-fp-break-time').value = dayFocusPeriodSettings.break;
+            document.getElementById('day-fp-return-time').value = dayFocusPeriodSettings.return;
+            document.getElementById('day-focus-period-config').classList.add('hidden');
+            document.getElementById('day-focus-period-arrow').classList.remove('rotate-180');
 
             if (saved.state === 'idle' || saved.state === 'paused') { // Tratar estado pausado como idle ao recarregar
                 resetToIdle();
@@ -862,6 +952,20 @@
             }
         }
 
+        function updateDayProgressBar() {
+            const dayTask = tasks.find(t => t.id === 'day_goal');
+            if (dayTask && dayTask.proposedTime > 0) {
+                dayProgressContainer.style.display = 'block';
+                const totalProposedTime = dayTask.proposedTime * 60;
+                const totalDedicatedTime = dayTask.dedicatedTime;
+                const percentage = Math.min((totalDedicatedTime / totalProposedTime) * 100, 100);
+                dayProgressBar.style.width = `${percentage}%`;
+                dayProgressText.textContent = `${formatTime(totalDedicatedTime)} / ${formatTime(totalProposedTime)}`;
+            } else {
+                dayProgressContainer.style.display = 'none';
+            }
+        }
+
         // --- Funções de UI e Estado ---
         function updateUI() {
             const allSessionButtons = [endFocusBtn, startRestBtn, skipRestBtn, endRestBtn];
@@ -888,19 +992,33 @@
                     if (totalProposedTime > 0) {
                         focusPeriodHeader.style.pointerEvents = 'auto';
                         focusPeriodHeader.style.opacity = '1';
-                        focusPeriodMessage.textContent = '';
+                        focusPeriodHeaderWrapper.classList.remove('show-tooltip-on-hover');
                     } else {
                         focusPeriodHeader.style.pointerEvents = 'none';
                         focusPeriodHeader.style.opacity = '0.5';
                         focusPeriodConfig.classList.add('hidden');
                         focusPeriodArrow.classList.remove('rotate-180');
                         expectedProgressIndicator.style.display = 'none';
-                        focusPeriodMessage.textContent = 'Insira o tempo de foco';
+                        focusPeriodHeaderWrapper.classList.add('show-tooltip-on-hover');
                     }
-                } else {
+                } else { // Day Mode
                     tasksModeContainer.style.display = 'none';
                     dayModeContainer.style.display = 'block';
                     renderDayGoal();
+                    updateDayProgressBar();
+                    const dayTask = tasks.find(t => t.id === 'day_goal');
+                    if (dayTask && dayTask.proposedTime > 0) {
+                        dayFocusPeriodHeader.style.pointerEvents = 'auto';
+                        dayFocusPeriodHeader.style.opacity = '1';
+                        dayFocusPeriodHeaderWrapper.classList.remove('show-tooltip-on-hover');
+                    } else {
+                        dayFocusPeriodHeader.style.pointerEvents = 'none';
+                        dayFocusPeriodHeader.style.opacity = '0.5';
+                        dayFocusPeriodConfig.classList.add('hidden');
+                        dayFocusPeriodArrow.classList.remove('rotate-180');
+                        dayExpectedIndicator.style.display = 'none';
+                        dayFocusPeriodHeaderWrapper.classList.add('show-tooltip-on-hover');
+                    }
                 }
             } else {
                 idleControls.classList.add('hidden');
@@ -1309,7 +1427,7 @@
             dayTask.proposedTime = (hr * 60) + min;
             dayGoalHrInput.value = '';
             dayGoalMinInput.value = '';
-            renderDayGoal();
+            updateUI();
             saveState();
         });
 
@@ -1423,26 +1541,31 @@
         });
 
         function calculateAndShowExpectedProgress() {
-            if (!focusPeriodSettings.start || !focusPeriodSettings.end) {
-                expectedProgressIndicator.style.display = 'none';
+            const settings = appMode === 'day' ? dayFocusPeriodSettings : focusPeriodSettings;
+            const indicator = appMode === 'day' ? dayExpectedIndicator : expectedProgressIndicator;
+
+            if (!settings.start || !settings.end) {
+                indicator.style.display = 'none';
                 return;
             }
 
             const now = new Date();
             const parseTime = (timeStr) => {
+                if (!timeStr) return null;
                 const [hours, minutes] = timeStr.split(':').map(Number);
                 const date = new Date();
                 date.setHours(hours, minutes, 0, 0);
                 return date;
             };
 
-            const t_start = parseTime(focusPeriodSettings.start);
-            const t_end = parseTime(focusPeriodSettings.end);
-            const t_break = focusPeriodSettings.break ? parseTime(focusPeriodSettings.break) : null;
-            const t_return = focusPeriodSettings.return ? parseTime(focusPeriodSettings.return) : null;
+            const t_start = parseTime(settings.start);
+            const t_end = parseTime(settings.end);
+            const t_break = parseTime(settings.break);
+            const t_return = parseTime(settings.return);
 
             if (now < t_start || now > t_end) {
-                expectedProgressIndicator.style.left = (now < t_start ? '0%' : '100%');
+                indicator.style.left = (now < t_start ? '0%' : '100%');
+                indicator.style.display = 'block';
                 return;
             }
 
@@ -1451,7 +1574,10 @@
                 totalWorkDuration -= (t_return - t_break);
             }
 
-            if (totalWorkDuration <= 0) return;
+            if (totalWorkDuration <= 0) {
+                indicator.style.display = 'none';
+                return;
+            }
 
             let elapsedWorkTime = 0;
             if (t_break && t_return && t_return > t_break) {
@@ -1467,8 +1593,8 @@
             }
 
             const expectedPercentage = Math.min((elapsedWorkTime / totalWorkDuration) * 100, 100);
-            expectedProgressIndicator.style.left = `${expectedPercentage}%`;
-            expectedProgressIndicator.style.display = 'block';
+            indicator.style.left = `${expectedPercentage}%`;
+            indicator.style.display = 'block';
         }
 
         setInterval(calculateAndShowExpectedProgress, 10000); // every 10 seconds
@@ -1665,6 +1791,18 @@
         [fpStartTime, fpEndTime, fpBreakTime, fpReturnTime].forEach(input => {
             input.addEventListener('change', (e) => {
                 focusPeriodSettings[e.target.id.split('-')[1]] = e.target.value;
+                saveState();
+            });
+        });
+
+        dayFocusPeriodHeader.addEventListener('click', () => {
+            dayFocusPeriodConfig.classList.toggle('hidden');
+            dayFocusPeriodArrow.classList.toggle('rotate-180');
+        });
+
+        [dayFpStartTime, dayFpEndTime, dayFpBreakTime, dayFpReturnTime].forEach(input => {
+            input.addEventListener('change', (e) => {
+                dayFocusPeriodSettings[e.target.id.split('-')[2]] = e.target.value;
                 saveState();
             });
         });
