@@ -156,6 +156,15 @@
                 <!-- Container Modo Tarefas -->
                 <div id="tasks-mode-container" class="space-y-4">
                     <button id="open-planning-btn" class="btn w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg">Planejar</button>
+                    <div id="planning-progress-container" class="space-y-2 !mt-4">
+                        <div class="flex justify-between text-sm font-medium text-gray-300">
+                            <span>Progresso do Dia</span>
+                            <span id="planning-progress-text"></span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                            <div id="planning-progress-bar" class="bg-cyan-600 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
                     <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
@@ -456,6 +465,9 @@
         const planningTaskHrInput = document.getElementById('planning-task-hr-input');
         const planningTaskMinInput = document.getElementById('planning-task-min-input');
         const planningDoneBtn = document.getElementById('planning-done-btn');
+        const planningProgressContainer = document.getElementById('planning-progress-container');
+        const planningProgressText = document.getElementById('planning-progress-text');
+        const planningProgressBar = document.getElementById('planning-progress-bar');
 
 
         const ambientLinks = ['https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=hYVa0sYAe5Q&t=392s', 'https://www.youtube.com/watch?v=eX-_DVDuXsM', 'https://www.youtube.com/watch?v=pGnmhVkronY', 'https://www.youtube.com/watch?v=TG8ERLOfMp0', 'https://www.youtube.com/watch?v=V6uL50dnKp4', 'https://www.youtube.com/watch?v=IwcdBPWsdQI', 'https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=q62Kx3wBGwE', 'https://www.youtube.com/watch?v=zGAcR9kStpM', 'https://www.youtube.com/watch?v=zcv-Sx-vWK8', 'https://www.youtube.com/watch?v=1XObQFBxpMM', 'https://www.youtube.com/watch?v=qhB2OFTZujM'];
@@ -482,6 +494,7 @@
         let planningTotalSeconds = 0;
         let planningAllocatedSeconds = 0;
         let planningTasks = [];
+        let editingPlanningTaskId = null;
 
         // --- Lógica de Áudio ---
         let synth;
@@ -579,6 +592,17 @@
             const pad = (n) => String(n).padStart(2, '0');
             return h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
         };
+        const formatTimeWithNegative = (sec) => {
+            const isNegative = sec < 0;
+            const s = Math.abs(sec);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const ss = s % 60;
+            const pad = (n) => String(n).padStart(2, '0');
+            const timeString = h > 0 ? `${pad(h)}:${pad(m)}:${pad(ss)}` : `${pad(m)}:${pad(ss)}`;
+            return isNegative ? `-${timeString}` : timeString;
+        };
+
         const formatTimeShort = (sec) => {
             if (sec < 0) sec = 0;
             const totalMinutes = Math.floor(sec / 60);
@@ -653,6 +677,7 @@
                 `;
                 taskList.appendChild(taskEl);
             });
+            updatePlanningProgressBar();
         }
 
         function renderDayGoal() {
@@ -759,28 +784,23 @@
             if (task) {
                 task.dedicatedTime += timeToAdd;
             }
+            updatePlanningProgressBar();
         }
 
-        function updateGoalIndicator() {
-            if (state !== 'focusing') {
-                goalRemainingIndicator.textContent = '';
-                return;
-            }
+        function updateGoalIndicator() { }
 
-            const task = tasks.find(t => t.id === currentTaskId);
-            if (task && task.proposedTime > 0) {
-                const goalTime = task.proposedTime * 60;
-                const potentialRest = calculateRestTime(focusSeconds);
-                const effectiveTime = task.dedicatedTime + focusSeconds + potentialRest;
-                const remainingTime = goalTime - effectiveTime;
+        function updatePlanningProgressBar() {
+            const relevantTasks = tasks.filter(t => t.id !== 'day_goal');
+            const totalProposedTime = relevantTasks.reduce((acc, task) => acc + (task.proposedTime * 60), 0);
+            const totalDedicatedTime = relevantTasks.reduce((acc, task) => acc + task.dedicatedTime, 0);
 
-                if (remainingTime > 0) {
-                    goalRemainingIndicator.textContent = `Meta em: ${formatTime(remainingTime)}`;
-                } else {
-                    goalRemainingIndicator.textContent = `Meta alcançada!`;
-                }
+            if (totalProposedTime > 0) {
+                planningProgressContainer.style.display = 'block';
+                const percentage = Math.min((totalDedicatedTime / totalProposedTime) * 100, 100);
+                planningProgressBar.style.width = `${percentage}%`;
+                planningProgressText.textContent = `${formatTime(totalDedicatedTime)} / ${formatTime(totalProposedTime)}`;
             } else {
-                goalRemainingIndicator.textContent = '';
+                planningProgressContainer.style.display = 'none';
             }
         }
 
@@ -1360,7 +1380,7 @@
 
         function updateRemainingTime() {
             const remainingSeconds = planningTotalSeconds - planningAllocatedSeconds;
-            planningRemainingTime.textContent = formatTime(remainingSeconds);
+            planningRemainingTime.textContent = formatTimeWithNegative(remainingSeconds);
             if (remainingSeconds < 0) {
                 planningRemainingTime.classList.add('text-red-500');
             } else {
@@ -1378,12 +1398,44 @@
                 const taskEl = document.createElement('div');
                 taskEl.className = 'p-2 bg-gray-700 rounded-lg flex justify-between items-center';
                 taskEl.innerHTML = `
-                    <span>${task.name}</span>
-                    <span>${formatTime(task.proposedTime * 60)}</span>
+                    <div>
+                        <span>${task.name}</span>
+                        <span class="text-gray-400 text-sm ml-2">${formatTime(task.proposedTime * 60)}</span>
+                    </div>
+                    <div>
+                        <button data-task-id="${task.id}" title="Editar Tarefa" class="edit-planning-task-btn btn bg-gray-600 hover:bg-gray-500 p-2 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="pointer-events-none" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                            </svg>
+                        </button>
+                    </div>
                 `;
                 planningTaskList.appendChild(taskEl);
             });
         }
+
+        function startEditPlanningTask(taskId) {
+            const task = planningTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            editingPlanningTaskId = taskId;
+
+            planningTaskNameInput.value = task.name;
+            planningTaskHrInput.value = Math.floor(task.proposedTime / 60);
+            planningTaskMinInput.value = task.proposedTime % 60;
+
+            const submitBtn = planningAddTaskForm.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Salvar';
+            submitBtn.classList.remove('bg-cyan-800', 'hover:bg-cyan-700');
+            submitBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-500');
+        }
+
+        planningTaskList.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-planning-task-btn');
+            if (editBtn) {
+                startEditPlanningTask(editBtn.dataset.taskId);
+            }
+        });
 
         openPlanningBtn.addEventListener('click', openPlanningModal);
 
@@ -1422,15 +1474,31 @@
                 return;
             }
 
-            const taskTimeSeconds = time * 60;
-            planningAllocatedSeconds += taskTimeSeconds;
+            if (editingPlanningTaskId) {
+                const task = planningTasks.find(t => t.id === editingPlanningTaskId);
+                if (task) {
+                    const oldTimeSeconds = task.proposedTime * 60;
+                    const newTimeSeconds = time * 60;
+                    planningAllocatedSeconds = planningAllocatedSeconds - oldTimeSeconds + newTimeSeconds;
+                    task.name = name;
+                    task.proposedTime = time;
+                }
+                editingPlanningTaskId = null;
+                const submitBtn = planningAddTaskForm.querySelector('button[type="submit"]');
+                submitBtn.textContent = 'Adicionar';
+                submitBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500');
+                submitBtn.classList.add('bg-cyan-800', 'hover:bg-cyan-700');
+            } else {
+                const taskTimeSeconds = time * 60;
+                planningAllocatedSeconds += taskTimeSeconds;
 
-            planningTasks.push({
-                id: `planning_${Date.now()}`,
-                name,
-                proposedTime: time,
-                dedicatedTime: 0
-            });
+                planningTasks.push({
+                    id: `planning_${Date.now()}`,
+                    name,
+                    proposedTime: time,
+                    dedicatedTime: 0
+                });
+            }
 
             planningTaskNameInput.value = '';
             planningTaskHrInput.value = '';
