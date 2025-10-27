@@ -1631,7 +1631,21 @@
         });
 
         planningDoneBtn.addEventListener('click', () => {
-            tasks.push(...planningTasks);
+            if (planningTasks.length > 0) {
+                tasks.push(...planningTasks);
+            } else if (planningTotalSeconds > 0) {
+                let generalTask = tasks.find(t => t.id === 'general');
+                if (generalTask) {
+                    generalTask.proposedTime += planningTotalSeconds / 60;
+                } else {
+                    tasks.push({
+                        id: 'general',
+                        name: "Geral",
+                        proposedTime: planningTotalSeconds / 60,
+                        dedicatedTime: 0
+                    });
+                }
+            }
             closePlanningModal();
             renderTasks();
             saveState();
