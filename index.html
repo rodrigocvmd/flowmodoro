@@ -62,6 +62,11 @@
 
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
+    <button id="emergency-reset-btn" title="Reseta o app para o estado inicial"
+        class="btn fixed bottom-4 right-4 bg-orange-500 hover:bg-orange-400 text-white font-bold py-2 px-4 rounded-lg z-50">
+        Reset App
+    </button>
+
     <div
         class="relative theMainBox w-full max-w-md mx-auto p-4 sm:p-6 md:p-7 bg-gray-800 rounded-2xl shadow-2xl space-y-6 md:space-y-8">
 
@@ -150,6 +155,7 @@
 
                 <!-- Container Modo Tarefas -->
                 <div id="tasks-mode-container" class="space-y-4">
+                    <button id="open-planning-btn" class="btn w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg">Planejar</button>
                     <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
@@ -324,10 +330,45 @@
                     class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Chill</button>
             </div>
         </div>
-    </div>
-
-
-    <script>
+        </div>
+    
+        <!-- Modal de Planejamento -->
+        <div id="planning-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+            <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
+                <!-- Step 1: Set Daily Goal -->
+                <div id="planning-step-1">
+                    <h3 class="text-lg font-bold text-white">Planejar Foco do Dia</h3>
+                    <p class="text-gray-300 mb-4">Quanto tempo você pretende focar hoje?</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="planning-goal-hr" placeholder="Horas" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0">
+                        <input type="number" id="planning-goal-min" placeholder="Minutos" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0" max="59">
+                    </div>
+                    <button id="planning-next-btn" class="btn w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Continuar</button>
+                </div>
+    
+                <!-- Step 2: Divide Time -->
+                <div id="planning-step-2" class="hidden">
+                    <h3 class="text-lg font-bold text-white">Como você quer dividir seu tempo de foco?</h3>
+                    <div class="bg-gray-900/50 p-3 rounded-lg my-4">
+                        <p class="text-gray-300">Tempo restante para alocar:</p>
+                        <p id="planning-remaining-time" class="text-2xl font-bold text-cyan-400">00:00</p>
+                    </div>
+                    <div id="planning-task-list" class="task-list space-y-2 pr-2"></div>
+                    <form id="planning-add-task-form" class="space-y-3">
+                        <input type="text" id="planning-task-name-input" placeholder="Nome da nova tarefa" class="text-center w-full mt-5 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" required>
+                        <label class="block text-sm font-medium text-gray-300 -mb-2">Tempo da tarefa:</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <input type="number" id="planning-task-hr-input" placeholder="Hr" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0">
+                            <input type="number" id="planning-task-min-input" placeholder="Min" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0" max="59">
+                            <button type="submit" class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
+                        </div>
+                    </form>
+                    <button id="planning-done-btn" class="btn w-full mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Finalizar Planejamento</button>
+                </div>
+            </div>
+        </div>
+    
+        <script>
         // --- Web Worker ---
         const workerCode = `
             let timerId = null;
@@ -401,6 +442,20 @@
         const setlistBtn = document.getElementById('setlist-btn');
         const playlistBtn = document.getElementById('playlist-btn');
         const chillBtn = document.getElementById('chill-btn');
+        const openPlanningBtn = document.getElementById('open-planning-btn');
+        const planningModal = document.getElementById('planning-modal');
+        const planningStep1 = document.getElementById('planning-step-1');
+        const planningStep2 = document.getElementById('planning-step-2');
+        const planningGoalHrInput = document.getElementById('planning-goal-hr');
+        const planningGoalMinInput = document.getElementById('planning-goal-min');
+        const planningNextBtn = document.getElementById('planning-next-btn');
+        const planningRemainingTime = document.getElementById('planning-remaining-time');
+        const planningTaskList = document.getElementById('planning-task-list');
+        const planningAddTaskForm = document.getElementById('planning-add-task-form');
+        const planningTaskNameInput = document.getElementById('planning-task-name-input');
+        const planningTaskHrInput = document.getElementById('planning-task-hr-input');
+        const planningTaskMinInput = document.getElementById('planning-task-min-input');
+        const planningDoneBtn = document.getElementById('planning-done-btn');
 
 
         const ambientLinks = ['https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=hYVa0sYAe5Q&t=392s', 'https://www.youtube.com/watch?v=eX-_DVDuXsM', 'https://www.youtube.com/watch?v=pGnmhVkronY', 'https://www.youtube.com/watch?v=TG8ERLOfMp0', 'https://www.youtube.com/watch?v=V6uL50dnKp4', 'https://www.youtube.com/watch?v=IwcdBPWsdQI', 'https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=q62Kx3wBGwE', 'https://www.youtube.com/watch?v=zGAcR9kStpM', 'https://www.youtube.com/watch?v=zcv-Sx-vWK8', 'https://www.youtube.com/watch?v=1XObQFBxpMM', 'https://www.youtube.com/watch?v=qhB2OFTZujM'];
@@ -424,6 +479,9 @@
         let sessionFocusTime = 0;
         let editingTaskId = null;
         let microTasks = [];
+        let planningTotalSeconds = 0;
+        let planningAllocatedSeconds = 0;
+        let planningTasks = [];
 
         // --- Lógica de Áudio ---
         let synth;
@@ -1271,6 +1329,128 @@
             const randomLink = chillLinks[Math.floor(Math.random() * chillLinks.length)];
             window.open(randomLink, '_blank');
             closeSonoraModal();
+        });
+
+        document.getElementById('emergency-reset-btn').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja resetar a aplicação? Todo o progresso não salvo será perdido.')) {
+                localStorage.removeItem('flowmodoroState');
+                resetToIdle();
+                location.reload();
+            }
+        });
+
+        // --- Lógica de Planejamento ---
+        function openPlanningModal() {
+            planningStep1.style.display = 'block';
+            planningStep2.style.display = 'none';
+            planningGoalHrInput.value = '';
+            planningGoalMinInput.value = '';
+            planningTasks = [];
+            planningAllocatedSeconds = 0;
+            planningTotalSeconds = 0;
+            renderPlanningTasks();
+            planningModal.classList.remove('hidden');
+            setTimeout(() => planningModal.classList.remove('opacity-0'), 10);
+        }
+
+        function closePlanningModal() {
+            planningModal.classList.add('opacity-0');
+            setTimeout(() => planningModal.classList.add('hidden'), 300);
+        }
+
+        function updateRemainingTime() {
+            const remainingSeconds = planningTotalSeconds - planningAllocatedSeconds;
+            planningRemainingTime.textContent = formatTime(remainingSeconds);
+            if (remainingSeconds < 0) {
+                planningRemainingTime.classList.add('text-red-500');
+            } else {
+                planningRemainingTime.classList.remove('text-red-500');
+            }
+        }
+
+        function renderPlanningTasks() {
+            planningTaskList.innerHTML = '';
+            if (planningTasks.length === 0) {
+                planningTaskList.innerHTML = `<p class="text-gray-500 text-center italic">Nenhuma tarefa planejada.</p>`;
+                return;
+            }
+            planningTasks.forEach(task => {
+                const taskEl = document.createElement('div');
+                taskEl.className = 'p-2 bg-gray-700 rounded-lg flex justify-between items-center';
+                taskEl.innerHTML = `
+                    <span>${task.name}</span>
+                    <span>${formatTime(task.proposedTime * 60)}</span>
+                `;
+                planningTaskList.appendChild(taskEl);
+            });
+        }
+
+        openPlanningBtn.addEventListener('click', openPlanningModal);
+
+        planningNextBtn.addEventListener('click', () => {
+            const hr = parseInt(planningGoalHrInput.value, 10) || 0;
+            const min = parseInt(planningGoalMinInput.value, 10) || 0;
+            planningTotalSeconds = (hr * 3600) + (min * 60);
+
+            if (planningTotalSeconds <= 0) {
+                alert('Por favor, insira um tempo de foco válido.');
+                return;
+            }
+
+            planningAllocatedSeconds = tasks.reduce((acc, task) => {
+                if (task.id !== 'day_goal') {
+                    return acc + (task.proposedTime * 60);
+                }
+                return acc;
+            }, 0);
+
+            planningStep1.style.display = 'none';
+            planningStep2.style.display = 'block';
+            updateRemainingTime();
+            renderPlanningTasks();
+        });
+
+        planningAddTaskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = planningTaskNameInput.value.trim();
+            const hr = parseInt(planningTaskHrInput.value, 10) || 0;
+            const min = parseInt(planningTaskMinInput.value, 10) || 0;
+            const time = (hr * 60) + min;
+
+            if (!name || time <= 0) {
+                alert('Por favor, insira um nome e tempo válidos para a tarefa.');
+                return;
+            }
+
+            const taskTimeSeconds = time * 60;
+            planningAllocatedSeconds += taskTimeSeconds;
+
+            planningTasks.push({
+                id: `planning_${Date.now()}`,
+                name,
+                proposedTime: time,
+                dedicatedTime: 0
+            });
+
+            planningTaskNameInput.value = '';
+            planningTaskHrInput.value = '';
+            planningTaskMinInput.value = '';
+
+            updateRemainingTime();
+            renderPlanningTasks();
+        });
+
+        planningDoneBtn.addEventListener('click', () => {
+            tasks.push(...planningTasks);
+            closePlanningModal();
+            renderTasks();
+            saveState();
+        });
+
+        planningModal.addEventListener('click', (e) => {
+            if (e.target === planningModal) {
+                closePlanningModal();
+            }
         });
 
         // --- Inicialização ---
