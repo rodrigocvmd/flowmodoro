@@ -161,10 +161,44 @@
                             <span>Progresso do Dia</span>
                             <span id="planning-progress-text"></span>
                         </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="w-full bg-gray-700 rounded-full h-2.5 relative">
                             <div id="planning-progress-bar" class="bg-cyan-600 h-2.5 rounded-full" style="width: 0%"></div>
+                            <div id="expected-progress-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full" style="left: 0%; display: none;"></div>
                         </div>
                     </div>
+
+                    <!-- Período de Foco Toggle -->
+                    <div class="flex items-center justify-center space-x-3 text-sm font-medium text-gray-300 !mt-4">
+                        <label for="focus-period-toggle" class="cursor-pointer">Período de Foco</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="focus-period-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-cyan-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                        <span id="focus-period-message" class="text-xs text-red-400"></span>
+                    </div>
+
+                    <!-- Período de Foco Config -->
+                    <div id="focus-period-config" class="hidden space-y-3 !mt-4 p-3 bg-gray-900/50 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
                     <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
                     <div id="task-list" class="task-list space-y-2 pr-2"></div>
                     <form id="add-task-form" class="space-y-3">
@@ -468,6 +502,14 @@
         const planningProgressContainer = document.getElementById('planning-progress-container');
         const planningProgressText = document.getElementById('planning-progress-text');
         const planningProgressBar = document.getElementById('planning-progress-bar');
+        const focusPeriodToggle = document.getElementById('focus-period-toggle');
+        const focusPeriodMessage = document.getElementById('focus-period-message');
+        const focusPeriodConfig = document.getElementById('focus-period-config');
+        const fpStartTime = document.getElementById('fp-start-time');
+        const fpEndTime = document.getElementById('fp-end-time');
+        const fpBreakTime = document.getElementById('fp-break-time');
+        const fpReturnTime = document.getElementById('fp-return-time');
+        const expectedProgressIndicator = document.getElementById('expected-progress-indicator');
 
 
         const ambientLinks = ['https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=hYVa0sYAe5Q&t=392s', 'https://www.youtube.com/watch?v=eX-_DVDuXsM', 'https://www.youtube.com/watch?v=pGnmhVkronY', 'https://www.youtube.com/watch?v=TG8ERLOfMp0', 'https://www.youtube.com/watch?v=V6uL50dnKp4', 'https://www.youtube.com/watch?v=IwcdBPWsdQI', 'https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=q62Kx3wBGwE', 'https://www.youtube.com/watch?v=zGAcR9kStpM', 'https://www.youtube.com/watch?v=zcv-Sx-vWK8', 'https://www.youtube.com/watch?v=1XObQFBxpMM', 'https://www.youtube.com/watch?v=qhB2OFTZujM'];
@@ -496,6 +538,14 @@
         let planningTasks = [];
         let editingPlanningTaskId = null;
 
+        let focusPeriodSettings = {
+            enabled: false,
+            start: '',
+            end: '',
+            break: '',
+            return: ''
+        };
+
         // --- Lógica de Áudio ---
         let synth;
         function initializeAudio() {
@@ -504,7 +554,7 @@
 
         // --- Funções de Persistência (LocalStorage) ---
         function saveState() {
-            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, editingTaskId, lastSaveTimestamp: Date.now() };
+            const appState = { state, appMode, seconds, focusSeconds, minFocusSeconds, isCountdown, tasks, currentTaskId, sessionFocusTime, editingTaskId, lastSaveTimestamp: Date.now(), focusPeriodSettings };
             localStorage.setItem('flowmodoroState', JSON.stringify(appState));
         }
 
@@ -519,6 +569,13 @@
             tasks = saved.tasks || [];
             appMode = saved.appMode || 'day';
             modeToggle.checked = appMode === 'tasks';
+
+            focusPeriodSettings = saved.focusPeriodSettings || { enabled: false, start: '', end: '', break: '', return: '' };
+            focusPeriodToggle.checked = focusPeriodSettings.enabled;
+            fpStartTime.value = focusPeriodSettings.start;
+            fpEndTime.value = focusPeriodSettings.end;
+            fpBreakTime.value = focusPeriodSettings.break;
+            fpReturnTime.value = focusPeriodSettings.return;
 
             if (saved.state === 'idle' || saved.state === 'paused') { // Tratar estado pausado como idle ao recarregar
                 resetToIdle();
@@ -826,6 +883,18 @@
                     tasksModeContainer.style.display = 'block';
                     dayModeContainer.style.display = 'none';
                     renderTasks();
+                    const totalProposedTime = tasks.filter(t => t.id !== 'day_goal').reduce((acc, task) => acc + (task.proposedTime * 60), 0);
+                    if (totalProposedTime > 0) {
+                        focusPeriodToggle.disabled = false;
+                        focusPeriodMessage.textContent = '';
+                    } else {
+                        focusPeriodToggle.disabled = true;
+                        focusPeriodToggle.checked = false;
+                        focusPeriodSettings.enabled = false;
+                        focusPeriodConfig.style.display = 'none';
+                        expectedProgressIndicator.style.display = 'none';
+                        focusPeriodMessage.textContent = 'Insira o tempo de foco';
+                    }
                 } else {
                     tasksModeContainer.style.display = 'none';
                     dayModeContainer.style.display = 'block';
@@ -1351,6 +1420,57 @@
             closeSonoraModal();
         });
 
+        function calculateAndShowExpectedProgress() {
+            if (!focusPeriodSettings.enabled || !focusPeriodSettings.start || !focusPeriodSettings.end) {
+                expectedProgressIndicator.style.display = 'none';
+                return;
+            }
+
+            const now = new Date();
+            const parseTime = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                const date = new Date();
+                date.setHours(hours, minutes, 0, 0);
+                return date;
+            };
+
+            const t_start = parseTime(focusPeriodSettings.start);
+            const t_end = parseTime(focusPeriodSettings.end);
+            const t_break = focusPeriodSettings.break ? parseTime(focusPeriodSettings.break) : null;
+            const t_return = focusPeriodSettings.return ? parseTime(focusPeriodSettings.return) : null;
+
+            if (now < t_start || now > t_end) {
+                expectedProgressIndicator.style.left = (now < t_start ? '0%' : '100%');
+                return;
+            }
+
+            let totalWorkDuration = t_end - t_start;
+            if (t_break && t_return && t_return > t_break) {
+                totalWorkDuration -= (t_return - t_break);
+            }
+
+            if (totalWorkDuration <= 0) return;
+
+            let elapsedWorkTime = 0;
+            if (t_break && t_return && t_return > t_break) {
+                if (now >= t_start && now < t_break) {
+                    elapsedWorkTime = now - t_start;
+                } else if (now >= t_break && now < t_return) {
+                    elapsedWorkTime = t_break - t_start;
+                } else if (now >= t_return && now <= t_end) {
+                    elapsedWorkTime = (t_break - t_start) + (now - t_return);
+                }
+            } else {
+                elapsedWorkTime = now - t_start;
+            }
+
+            const expectedPercentage = Math.min((elapsedWorkTime / totalWorkDuration) * 100, 100);
+            expectedProgressIndicator.style.left = `${expectedPercentage}%`;
+            expectedProgressIndicator.style.display = 'block';
+        }
+
+        setInterval(calculateAndShowExpectedProgress, 10000); // every 10 seconds
+
         document.getElementById('emergency-reset-btn').addEventListener('click', () => {
             if (confirm('Tem certeza que deseja resetar a aplicação? Todo o progresso não salvo será perdido.')) {
                 localStorage.removeItem('flowmodoroState');
@@ -1519,6 +1639,25 @@
             if (e.target === planningModal) {
                 closePlanningModal();
             }
+        });
+
+        focusPeriodToggle.addEventListener('change', (e) => {
+            focusPeriodSettings.enabled = e.target.checked;
+            if (focusPeriodSettings.enabled) {
+                focusPeriodConfig.style.display = 'block';
+                expectedProgressIndicator.style.display = 'block';
+            } else {
+                focusPeriodConfig.style.display = 'none';
+                expectedProgressIndicator.style.display = 'none';
+            }
+            saveState();
+        });
+
+        [fpStartTime, fpEndTime, fpBreakTime, fpReturnTime].forEach(input => {
+            input.addEventListener('change', (e) => {
+                focusPeriodSettings[e.target.id.split('-')[1]] = e.target.value;
+                saveState();
+            });
         });
 
         // --- Inicialização ---
