@@ -57,11 +57,13 @@
         .task-item .right-3 {
             z-index: 20;
         }
-        .show-tooltip-on-hover:hover + #focus-period-message {
+
+        .show-tooltip-on-hover:hover+#focus-period-message {
             opacity: 1;
             transform: scale(1) translateX(-50%);
         }
-        #day-focus-period-header-wrapper.show-tooltip-on-hover:hover + #day-focus-period-message {
+
+        #day-focus-period-header-wrapper.show-tooltip-on-hover:hover+#day-focus-period-message {
             opacity: 1;
             transform: scale(1) translateX(-50%);
         }
@@ -158,15 +160,19 @@
 
                 <!-- Container Modo Tarefas -->
                 <div id="tasks-mode-container" class="space-y-4">
-                    <button id="open-planning-btn" class="btn w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg">Planejar</button>
+                    <button id="open-planning-btn"
+                        class="btn w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg">Planejar</button>
                     <div id="planning-progress-container" class="space-y-2 !mt-4">
                         <div class="flex justify-between text-sm font-medium text-gray-300">
                             <span>Progresso do Dia</span>
                             <span id="planning-progress-text"></span>
                         </div>
                         <div class="w-full bg-gray-700 rounded-full h-2.5 relative">
-                            <div id="planning-progress-bar" class="bg-cyan-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            <div id="expected-progress-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full" style="left: 0%; display: none;"></div>
+                            <div id="planning-progress-bar" class="bg-cyan-600 h-2.5 rounded-full" style="width: 0%">
+                            </div>
+                            <div id="expected-progress-indicator"
+                                class="absolute top-0 h-full w-1 bg-red-500 rounded-full"
+                                style="left: 0%; display: none;"></div>
                         </div>
                     </div>
                     <h2 class="text-lg text-center font-semibold text-gray-200">Selecione uma tarefa (opcional)</h2>
@@ -191,14 +197,19 @@
                     <!-- Período de Foco Section -->
                     <div id="focus-period-section" class="space-y-2 !mt-4 relative">
                         <div id="focus-period-header-wrapper">
-                            <div id="focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
+                            <div id="focus-period-header"
+                                class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
                                 <span class="text-base font-medium text-gray-300">Período de Foco</span>
-                                <svg id="focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <svg id="focus-period-arrow"
+                                    class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
                         </div>
-                        <div id="focus-period-message" class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
+                        <div id="focus-period-message"
+                            class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
                             Insira o tempo de foco
                         </div>
 
@@ -206,20 +217,28 @@
                         <div id="focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label for="fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
-                                    <input type="time" id="fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="fp-start-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                    <input type="time" id="fp-start-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
-                                    <input type="time" id="fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="fp-end-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                    <input type="time" id="fp-end-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
-                                    <input type="time" id="fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="fp-break-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                    <input type="time" id="fp-break-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
-                                    <input type="time" id="fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="fp-return-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                    <input type="time" id="fp-return-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                             </div>
                         </div>
@@ -237,7 +256,8 @@
                         </div>
                         <div class="w-full bg-gray-700 rounded-full h-2.5 relative">
                             <div id="day-progress-bar" class="bg-teal-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            <div id="day-expected-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full" style="left: 0%; display: none;"></div>
+                            <div id="day-expected-indicator" class="absolute top-0 h-full w-1 bg-red-500 rounded-full"
+                                style="left: 0%; display: none;"></div>
                         </div>
                     </div>
 
@@ -258,34 +278,47 @@
                     <!-- Day Focus Period Section -->
                     <div id="day-focus-period-section" class="space-y-2 !mt-4 relative">
                         <div id="day-focus-period-header-wrapper">
-                            <div id="day-focus-period-header" class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
+                            <div id="day-focus-period-header"
+                                class="flex items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-gray-700">
                                 <span class="text-base font-medium text-gray-300">Período de Foco</span>
-                                <svg id="day-focus-period-arrow" class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <svg id="day-focus-period-arrow"
+                                    class="w-5 h-5 text-gray-400 ml-2 transform transition-transform" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
                         </div>
-                        <div id="day-focus-period-message" class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
+                        <div id="day-focus-period-message"
+                            class="absolute -top-8 left-1/2 -translate-x-1/2 w-max bg-gray-700 text-white text-xs rounded py-1 px-2 opacity-0 scale-0 transition-all duration-200 ease-in-out pointer-events-none">
                             Defina uma meta para o dia
                         </div>
 
                         <div id="day-focus-period-config" class="hidden space-y-3 p-3 bg-gray-900/50 rounded-lg">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label for="day-fp-start-time" class="block text-sm font-medium text-gray-300 mb-1">Início</label>
-                                    <input type="time" id="day-fp-start-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="day-fp-start-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Início</label>
+                                    <input type="time" id="day-fp-start-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="day-fp-end-time" class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
-                                    <input type="time" id="day-fp-end-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="day-fp-end-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Fim</label>
+                                    <input type="time" id="day-fp-end-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="day-fp-break-time" class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
-                                    <input type="time" id="day-fp-break-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="day-fp-break-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Pausa</label>
+                                    <input type="time" id="day-fp-break-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                                 <div>
-                                    <label for="day-fp-return-time" class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
-                                    <input type="time" id="day-fp-return-time" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
+                                    <label for="day-fp-return-time"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Retorno</label>
+                                    <input type="time" id="day-fp-return-time"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm">
                                 </div>
                             </div>
                         </div>
@@ -419,7 +452,7 @@
             <h3 class="text-lg font-bold text-white">Sonora</h3>
             <div class="grid grid-cols-2 gap-4">
                 <button id="ambient-btn"
-                    class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">A & F</button>
+                    class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">A&F</button>
                 <button id="setlist-btn"
                     class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Set</button>
                 <button id="playlist-btn"
@@ -428,45 +461,60 @@
                     class="btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Chill</button>
             </div>
         </div>
-        </div>
-    
-        <!-- Modal de Planejamento -->
-        <div id="planning-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
-            <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
-                <!-- Step 1: Set Daily Goal -->
-                <div id="planning-step-1">
-                    <h3 class="text-lg font-bold text-white">Planejar Foco do Dia</h3>
-                    <p class="text-gray-300 mb-4">Quanto tempo você pretende focar hoje?</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="planning-goal-hr" placeholder="Horas" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0">
-                        <input type="number" id="planning-goal-min" placeholder="Minutos" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0" max="59">
-                    </div>
-                    <button id="planning-next-btn" class="btn w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Continuar</button>
+    </div>
+
+    <!-- Modal de Planejamento -->
+    <div id="planning-modal"
+        class="modal-overlay fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-xl w-full max-w-sm text-center space-y-4">
+            <!-- Step 1: Set Daily Goal -->
+            <div id="planning-step-1">
+                <h3 class="text-lg font-bold text-white">Planejar Foco do Dia</h3>
+                <p class="text-gray-300 mb-4">Quanto tempo você pretende focar hoje?</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="planning-goal-hr" placeholder="Horas"
+                        class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                        min="0">
+                    <input type="number" id="planning-goal-min" placeholder="Minutos"
+                        class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                        min="0" max="59">
                 </div>
-    
-                <!-- Step 2: Divide Time -->
-                <div id="planning-step-2" class="hidden">
-                    <h3 class="text-lg font-bold text-white">Como você quer dividir seu tempo de foco?</h3>
-                    <div class="bg-gray-900/50 p-3 rounded-lg my-4">
-                        <p class="text-gray-300">Tempo restante para alocar:</p>
-                        <p id="planning-remaining-time" class="text-2xl font-bold text-cyan-400">00:00</p>
-                    </div>
-                    <div id="planning-task-list" class="task-list space-y-2 pr-2"></div>
-                    <form id="planning-add-task-form" class="space-y-3">
-                        <input type="text" id="planning-task-name-input" placeholder="Nome da nova tarefa" class="text-center w-full mt-5 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" required>
-                        <label class="block text-sm font-medium text-gray-300 -mb-2">Tempo da tarefa:</label>
-                        <div class="grid grid-cols-3 gap-3">
-                            <input type="number" id="planning-task-hr-input" placeholder="Hr" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0">
-                            <input type="number" id="planning-task-min-input" placeholder="Min" class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none" min="0" max="59">
-                            <button type="submit" class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
-                        </div>
-                    </form>
-                    <button id="planning-done-btn" class="btn w-full mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Finalizar Planejamento</button>
+                <button id="planning-next-btn"
+                    class="btn w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg">Continuar</button>
+            </div>
+
+            <!-- Step 2: Divide Time -->
+            <div id="planning-step-2" class="hidden">
+                <h3 class="text-lg font-bold text-white">Como você quer dividir seu tempo de foco?</h3>
+                <div class="bg-gray-900/50 p-3 rounded-lg my-4">
+                    <p class="text-gray-300">Tempo restante para alocar:</p>
+                    <p id="planning-remaining-time" class="text-2xl font-bold text-cyan-400">00:00</p>
                 </div>
+                <div id="planning-task-list" class="task-list space-y-2 pr-2"></div>
+                <form id="planning-add-task-form" class="space-y-3">
+                    <input type="text" id="planning-task-name-input" placeholder="Nome da nova tarefa"
+                        class="text-center w-full mt-5 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                        required>
+                    <label class="block text-sm font-medium text-gray-300 -mb-2">Tempo da tarefa:</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <input type="number" id="planning-task-hr-input" placeholder="Hr"
+                            class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                            min="0">
+                        <input type="number" id="planning-task-min-input" placeholder="Min"
+                            class="text-center w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                            min="0" max="59">
+                        <button type="submit"
+                            class="btn bg-cyan-800 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg">Adicionar</button>
+                    </div>
+                </form>
+                <button id="planning-done-btn"
+                    class="btn w-full mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg">Finalizar
+                    Planejamento</button>
             </div>
         </div>
-    
-        <script>
+    </div>
+
+    <script>
         // --- Web Worker ---
         const workerCode = `
             let timerId = null;
@@ -586,7 +634,7 @@
         const ambientLinks = ['https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=hYVa0sYAe5Q&t=392s', 'https://www.youtube.com/watch?v=eX-_DVDuXsM', 'https://www.youtube.com/watch?v=pGnmhVkronY', 'https://www.youtube.com/watch?v=TG8ERLOfMp0', 'https://www.youtube.com/watch?v=V6uL50dnKp4', 'https://www.youtube.com/watch?v=IwcdBPWsdQI', 'https://www.youtube.com/watch?v=wc96ITthFM8&t=2504s', 'https://www.youtube.com/watch?v=q62Kx3wBGwE', 'https://www.youtube.com/watch?v=zGAcR9kStpM', 'https://www.youtube.com/watch?v=zcv-Sx-vWK8', 'https://www.youtube.com/watch?v=1XObQFBxpMM', 'https://www.youtube.com/watch?v=qhB2OFTZujM'];
         const setlistLinks = ['https://www.youtube.com/watch?v=b9kThoLdDc8&t=3628s'];
         const playlistLinks = ['https://open.spotify.com/playlist/1yuZzDSc1f5W0Z2gd5rF6o?si=ae6d504365fe4b75'];
-        const chillLinks = ['https://www.youtube.com/watch?v=T2QZpy07j4s', 'https://www.youtube.com/watch?v=_Q8Ih2SW-TE'];
+        const chillLinks = ['https://www.youtube.com/watch?v=T2QZpy07j4s', 'https://www.youtube.com/watch?v=_Q8Ih2SW-TE', 'https://www.youtube.com/watch?v=DG5N4ARcHEI'];
 
         // --- Melhoria de UX: Selecionar texto ao focar ---
         document.querySelectorAll('input[type=text], input[type=number]').forEach(input => {
